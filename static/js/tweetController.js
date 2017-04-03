@@ -12,6 +12,10 @@ function initMap() {
     zoom: 4,
     center: nyc
   });
+	  map2 = new google.maps.Map(document.getElementById('map'), {
+    zoom: 4,
+    center: nyc
+  });
   infowindow = new google.maps.InfoWindow({});
   limit_zoom_level();
 }

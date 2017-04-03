@@ -18,16 +18,27 @@
 </div><!-- /.container-fluid -->
 </nav>
 		<!-- load Google map-->
-		<div id="map" style="width:600px;height:450px" border = 5px solid gray; ></div>
-		<!-- keyword select form -->
-    <label for="mysearch2" >Enter your search for EmoSense : </label>
-    <input id="mysearch2" type="search" placeholder="search">
+    <div class="row">
+               <div  class="button" style="width:450px;height:400px;float:left;border:5px"  solid gray; ></div>
+		<div  id="map" style="width:450px;height:400px;float:left;border:5px"   solid gray; ></div>
+
+    </div>
+        <!-- keyword select form -->
+    <div class="row">
+    <div id="search">
+    <form id="searchbox" action="" >
+        <input id="search" box-sizing="border-box" border-boxtype="text"style="width: 180px;float: right"  placeholder="Search for:">
+        <input  id="submit" type="submit" style="float: right" value="Search">
+    </form>
+    </div>
+
+
     <div align="right" ><button type="button"  class="button">Sports</button></div>
     <div align="right"><button type="button"  class="button">Politics</button></div>
     <div align="right"><button type="button"  class="button">Technology</button></div>
     <div align="right"><button type="button"  class="button">Health</button></div>
     <div align="right"><button type="button"  class="button">Entertainment</button></div>
-
+  
 
         <span id='testing'><span>
 		<script src="../static/js/tweetController.js"></script>
