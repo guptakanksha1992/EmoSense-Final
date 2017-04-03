@@ -9,8 +9,8 @@ Created on Fri Mar 10 19:42:02 2017
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 
-HOSTADDRESS='search-tweetmap-whpei25apwtxe7bvkmaj34ozee.us-west-1.es.amazonaws.com'
-awsauth = AWS4Auth('AKIAINHSJW74HQTPGTYQ', 'ROcOAC4P3iJ4pkX1ySJjDNJfvTzmLFFqAcE7XW3l', "us-west-1", 'es')
+HOSTADDRESS='search-emosensedomain-xk27wxxqol3yd4bcbbsxtmvsfm.us-east-1.es.amazonaws.com'
+awsauth = AWS4Auth('AKIAINHSJW74HQTPGTYQ', 'ROcOAC4P3iJ4pkX1ySJjDNJfvTzmLFFqAcE7XW3l', "us-east-1", 'es')
 
 # Our elastic search engine
 

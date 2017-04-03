@@ -27,6 +27,9 @@ collection = {
 				"id": {
 					"type": "string"
 				},
+                "source": {
+					"type": "string"
+				},
 				"message": {
 					"type": "string"
 				},
@@ -34,10 +37,28 @@ collection = {
 					"type": "string"
 				},
 				"timestamp": {
-					"type": "string"
+					"type": "date"
 				},
 				"location": {
 					"type": "geo_point"
+				},
+                "sentiment": {
+					"type": "string"
+				},
+                "anger": {
+					"type": "float"
+				},
+                "joy": {
+					"type": "float"
+				},
+                "sadness": {
+					"type": "float"
+				},
+                "fear": {
+					"type": "float"
+				},
+                "disgust": {
+					"type": "float"
 				}
 			}
 		}
@@ -51,7 +72,7 @@ try:
     collection_service = ElasticSearchServices()
     collection_service.create_collection(index, collection)
 except:
-    print "Index already created"
+    print ("Index already created")
 
 class TweetListener(StreamListener):
 
