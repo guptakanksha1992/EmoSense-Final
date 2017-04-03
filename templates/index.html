@@ -7,28 +7,35 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> <!-- adding jQuery.js -->
 	</head>
 	<body>
+	<nav class="navbar navbar-default">
+		    <div class="container-fluid">
+		        <!-- Brand and toggle get grouped for better mobile display -->
+		        <div class="navbar-header">
+		            <a class="navbar-brand" href="#">Emo Sense </a>
+					</div><!-- /.navbar-collapse -->
+				<ul class="nav navbar-nav navbar-right">
+					<button type="submit" class="btn btn-primary">Go Live Now!</button>
+</div><!-- /.container-fluid -->
+</nav>
 		<!-- load Google map-->
-		<div id="map"></div>
+		<div id="map" style="width:600px;height:450px" border = 5px solid gray; ></div>
 		<!-- keyword select form -->
 		<form class="form-horizontal ui-draggable" id="keyword_select_form" draggable=true>
 
   		<fieldset>
-  			<legend><b>Tweet Map</b></legend>
-        Search tweets based on a keyword globally by pressing Global Tweets or select a distance from drop down and place marker on map for localized tweets 
+  			<legend><b>Streaming Options</b></legend>
+        Select the criteria, based on which you would like to know the emotion of the selected region.
     		<div class="form-group">
           <div class="row">
-      			<label for="select" class="col-sm-2 control-label" id="keyword_label">Key Word</label>
+      			<label for="select" class="col-sm-2 control-label" id="keyword_label">Category</label>
       			<div class="col-sm-10" id="drop-down_select">
         			<select class="form-control" id="selected_keyword">
           				<option selected="selected">Food</option>
-          				<option>Travel</option>
-          				<option>Hollywood</option>
-          				<option>Art</option>
-          				<option>Cartoons</option>
-          				<option>Pizza</option>
-          				<option>Friends</option>
-                  <option>Miami</option>
-        			</select>
+          				<option>Entertainment</option>
+          				<option>Politics</option>
+          				<option>Sports</option>
+          				<option>Technology</option>
+          				<option>Health</option>
       			</div>
     		  </div>
           <div class="form-group">
@@ -45,12 +52,17 @@
               </select>
             </div>
           </div>
-      			<div class="col-sm-10 col-sm-offset-2" id="buttons">
-        			<button type="submit" class="btn btn-primary">Global Tweet Map!</button>
-      		  </div>  </div>
   		</fieldset>
         <span id="warning"></span>
 		</form>
+		<nav class="navbar navbar-default">
+			    <div class="container-fluid">
+			        <!-- Brand and toggle get grouped for better mobile display -->
+			        <div class="navbar-header" height = 20 px >
+			            <a class="navbar-brand" href="#">Emo Sense </a>
+						</div><!-- /.navbar-collapse -->
+	</div><!-- /.container-fluid -->
+	</nav>
         <span id='testing'><span>
 		<script src="../static/js/tweetController.js"></script>
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
