@@ -18,7 +18,7 @@ import watson_developer_cloud.natural_language_understanding.features.v1 as \
 # consumerSecret='qbcDPiGjdNGj3B2EiXja3z0ppxMenePTzp6X1nAur2CakwLF1G'
 # accessToken='3287103102-m7iUaz9H6eOmgl50DBMXPfePIywVFEnYldLAUoa'
 # accessSecret='lrJiIAcGZRvxPNTTvo5TCe3KRJp6FaqNZGIOC0SSOHLsx'
-reload(sys) 
+reload(sys)
 sys.setdefaultencoding('utf8')
 consumerKey = 'BsqAyEcVuXSuamuK633hhnqis'
 consumerSecret = 'hHpIC2dww24423zPD4qV6FGFn8E7RqMfTRsn6zDuTuKGILk4aC'

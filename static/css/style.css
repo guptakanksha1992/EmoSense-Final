@@ -5,7 +5,34 @@ body,
         height: 100%;
         background-color: grey;
  }
-
+.button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+	width: 170px;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+top: 198px;
+}
+.button2 {
+    background-color: blue;
+    border: none;
+    color: white;
+	width: 200px;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+	top:50%;
+}
 #keyword_select_form {
 	width: 23%;
 	/* height: 30%; */
@@ -26,13 +53,6 @@ body,
 	margin-left: 10%;
 }
 
-#buttons {
-	display: inline-block;
-	margin-left: 5%;
-	position: relative;
-	text-align: center;
-
-}
 
 #keyword_label {
 	font-size:115%;
