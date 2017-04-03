@@ -3,11 +3,17 @@
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 
+myvars = {}
+with open("aws_auth.txt") as myfile:
+    for line in myfile:
+        name, var = line.partition(":")[::2]
+        myvars[name.strip()] = var.strip()
+
 # Our elastic search engine
-#awsauth = AWS4Auth('AKIAINYR7GOTUOL4IWUQ', 'E4yhGRR4QBGlLKLMAy/DEpYy5zqq9QMN54uN050q', "us-west-1", 'es')
-HOSTADDRESS='search-tweetmap-whpei25apwtxe7bvkmaj34ozee.us-west-1.es.amazonaws.com'
-#awsauth = AWS4Auth('AKIAINHSJW74HQTPGTYQ', 'ROcOAC4P3iJ4pkX1ySJjDNJfvTzmLFFqAcE7XW3l', "us-west-1", 'es')
-awsauth = AWS4Auth('AKIAINYR7GOTUOL4IWUQ', 'E4yhGRR4QBGlLKLMAy/DEpYy5zqq9QMN54uN050q', "us-west-1", 'es')
+
+HOSTADDRESS=myvars['elastic_search_host_address']
+
+awsauth = AWS4Auth(myvars['aws_api_key'], myvars['aws_secret'], "us-east-1", 'es')
 
 class ElasticSearchServices:
 
@@ -50,4 +56,3 @@ class ElasticSearchServices:
 
     def total_hits(results):
     	return results['hits']['total']
-
