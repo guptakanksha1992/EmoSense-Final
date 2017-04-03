@@ -130,6 +130,7 @@ button {
 }
 button,
 select {
+  border: 5
   text-transform: none;
 }
 button,
@@ -270,7 +271,8 @@ th {
 @font-face {
   font-family: 'Glyphicons Halflings';
   src: url('../fonts/glyphicons-halflings-regular.eot');
-  src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+  src: url('../fonts/glyphicons-halflings-regular.eot?#iefix')
+  at('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }
 .glyphicon {
   position: relative;
@@ -2698,9 +2700,9 @@ fieldset[disabled] .checkbox label {
   cursor: not-allowed;
 }
 .form-control-static {
-  padding-top: 7px;
-  padding-bottom: 7px;
-  margin-bottom: 0;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-bottom: 0px;
   min-height: 36px;
 }
 .form-control-static.input-lg,
@@ -2972,6 +2974,7 @@ select[multiple].input-lg {
 .form-horizontal .checkbox-inline {
   margin-top: 0;
   margin-bottom: 0;
+  float: right;
   padding-top: 7px;
 }
 .form-horizontal .radio,
@@ -2979,8 +2982,8 @@ select[multiple].input-lg {
   min-height: 30px;
 }
 .form-horizontal .form-group {
-  margin-left: -15px;
-  margin-right: -15px;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 @media (min-width: 768px) {
   .form-horizontal .control-label {
@@ -4175,7 +4178,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 @media (min-width: 768px) {
   .navbar {
-    border-radius: 3px;
+    border-radius: 1px;
   }
 }
 @media (min-width: 768px) {

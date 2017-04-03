@@ -6,7 +6,7 @@ class TwitterHandler:
 
 	def __init__(self):
 		self.es = ElasticSearchServices()
-		self.index = "finaltwittermapindex5"
+		self.index = "emosense_index"
 		self.doc_type = "finaltweets2"
 
 	def getTweets(self, keyword):
@@ -25,24 +25,7 @@ class TwitterHandler:
 
 	def getTweetsWithDistance(self, keyword, distance, latitude, longitude):
 		distance_string = distance + 'km'
-		print 'Searching ', distance_string, ' from location Latitude: ', latitude, ' ; Longitude: ', longitude
-		# '''body = {
-		# 	"query": {
-		# 		"match": {
-		# 			"_all": keyword
-		# 		}
-		# 	},
-		# 	"filter": {
-		# 		"geo_distance": {
-		# 			"distance": distance_string,
-		# 			"distance_type": "sloppy_arc",
-		# 			"location": {
-		# 				"lat": latitude,
-		# 				"lon": longitude
-		# 			}
-		# 		}
-		# 	}
-		# }'''
+		print ('Searching ', distance_string, ' from location Latitude: ', latitude, ' ; Longitude: ', longitude)
 
 		if (type(latitude) != float):
 			latitude = float(latitude)
@@ -75,7 +58,7 @@ class TwitterHandler:
 
 		return result
 
-	def insertTweet(self, t_id, location_data, tweet, author, timestamp):
+	def insertTweet(self, t_id, location_data, tweet, author, timestamp, sentimentRating,anger, joy, sadness, fear, disgust ):
 		#print "Inserting the follwing tweet: "
 		# print id
 		#print tweet
@@ -85,7 +68,13 @@ class TwitterHandler:
 			"message": tweet,
 			"author": author,
 			"timestamp": timestamp,
-			"location": location_data
+			"location": location_data,
+			"sentiment": sentimentRating,
+			"anger": anger,
+			"joy":joy,
+			"sadness":sadness,
+			"fear": fear,
+			"disgust": disgust
 		}
 
 		result = self.es.store_data(self.index, self.doc_type, body)
