@@ -1,25 +1,37 @@
 import tweepy
-import json
 from tweepy import Stream
 from tweepy.streaming import StreamListener
 from TweetHandler import TwitterHandler
 from ElasticSearchServices import ElasticSearchServices
 import random
+import json
+import re
+import sys
+from watson_developer_cloud import NaturalLanguageUnderstandingV1
+import watson_developer_cloud.natural_language_understanding.features.v1 as \
+    features
 
 
 #----------Twitter API Details---------------------------
+#
+# consumerKey='uJ8ywVGKTC7aubwomDuWrAu9t'
+# consumerSecret='qbcDPiGjdNGj3B2EiXja3z0ppxMenePTzp6X1nAur2CakwLF1G'
+# accessToken='3287103102-m7iUaz9H6eOmgl50DBMXPfePIywVFEnYldLAUoa'
+# accessSecret='lrJiIAcGZRvxPNTTvo5TCe3KRJp6FaqNZGIOC0SSOHLsx'
+reload(sys) 
+sys.setdefaultencoding('utf8')
+consumerKey = 'BsqAyEcVuXSuamuK633hhnqis'
+consumerSecret = 'hHpIC2dww24423zPD4qV6FGFn8E7RqMfTRsn6zDuTuKGILk4aC'
+accessToken = '821895090843119616-KPATvAYQ3m32S0hTg8HFwLYFJrqXMGX'
+accessSecret = 's5CnpP9jRi5eL5Fq6o4rSE5OiMm7S51UrZg20X8BhCCJi'
 
-consumerKey='uJ8ywVGKTC7aubwomDuWrAu9t'
-consumerSecret='qbcDPiGjdNGj3B2EiXja3z0ppxMenePTzp6X1nAur2CakwLF1G'
-accessToken='3287103102-m7iUaz9H6eOmgl50DBMXPfePIywVFEnYldLAUoa'
-accessSecret='lrJiIAcGZRvxPNTTvo5TCe3KRJp6FaqNZGIOC0SSOHLsx'
 
-KEYWORDS = ['Food', 'Travel', 'Hollywood', 'Art', 'Cartoons', 'Pizza', 'Friends', 'Miami']
+KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment']
 REQUEST_LIMIT = 420
 
 #---- Elastic Search Details -------
 
-index = "finaltwittermapindex5"
+index = "emosense_index"
 collection = {
 	"mappings": {
 		"finaltweets2": {
@@ -37,7 +49,7 @@ collection = {
 					"type": "string"
 				},
 				"timestamp": {
-					"type": "date"
+					"type": "string"
 				},
 				"location": {
 					"type": "geo_point"
@@ -79,9 +91,9 @@ class TweetListener(StreamListener):
     def on_data(self, data):
         try:
             parse_data(data)
-        except:
+        except Exception, e1:
             # print(data)
-            print("No location data found")
+            print("No location data found" + str(e1))
 
         return(True)
 
@@ -125,12 +137,53 @@ def parse_data(data):
     tweet = json_data_file["text"]
     author = json_data_file["user"]["name"]
     timestamp = json_data_file["created_at"]
-
     location_data = [final_longitude, final_latitude]
+
+    # sentiment analysis
+    # watson username and password
+    wusername = '3389e807-52e0-40bd-b35c-39ca9c2b8836'
+    wpassword = 'myUPGrOO2FqC'
+
+    natural_language_understanding = NaturalLanguageUnderstandingV1(
+        version='2017-02-27',
+        username=wusername,
+        password=wpassword)
+
+    def sentimentAnalysis(text):
+        # encoded_text = urllib.quote(text)
+        response = natural_language_understanding.analyze(
+            text=text,
+            features=[features.Emotion(), features.Sentiment()])
+        # print text
+        emotion_dict = response['emotion']['document']['emotion']
+        overall_sentiment = response['sentiment']['document']['label']
+
+        # print ("The overall sentiment of the text is: "+overall_sentiment)
+        #print("The emotional quotient of the text is as follows: ")
+        # for key in emotion_dict:
+        #     print(key + " : " + str(emotion_dict[key]))
+        return overall_sentiment, emotion_dict
+
+    def clean_tweet(tweet):
+        '''
+        Utility function to clean tweet text by removing links, special characters
+        using simple regex statements.
+        '''
+        return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
+    cleansed_tweet = clean_tweet(tweet)
+    sentimentRating, allemotions = sentimentAnalysis(cleansed_tweet)
+    anger=allemotions['anger']
+    joy=allemotions['joy']
+    sadness=allemotions['sadness']
+    fear=allemotions['fear']
+    disgust=allemotions['disgust']
+
+    print("me" ,tweetId, location_data, tweet, author, timestamp, sentimentRating, anger, joy, sadness, fear, disgust)
     try:
-        print(tweetHandler.insertTweet(tweetId, location_data, tweet, author, timestamp))
-    except:
-        print("Failed to insert tweet")
+        print(tweetHandler.insertTweet(tweetId, location_data, tweet, author, timestamp , sentimentRating,anger, joy, sadness, fear, disgust ))
+    except Exception, e:
+        print("Failed to insert tweet: " + str(e))
 
 def startStream():
 
