@@ -1,7 +1,6 @@
 import tweepy
 from tweepy import Stream
 import ConfigParser
-import re
 from tweepy.streaming import StreamListener
 from TweetHandler import TwitterHandler
 from ElasticSearchServices import ElasticSearchServices

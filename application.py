@@ -5,6 +5,7 @@ import thread
 from flask import Flask, render_template, jsonify
 
 from TweetHandler import TwitterHandler
+from  search_in_ES import FreeSearch
 
 #----------------------------------------
 # News Fetching and Handling API
@@ -41,6 +42,15 @@ def searchKeywordWithDistance(keyword, distance, latitude, longitude):
     searchTweets = TwitterHandler()
     result = searchTweets.getTweetsWithDistance(keyword, distance, latitude, longitude)
     return jsonify(result)
+
+# Route of ES search for free keyword search
+@application.route('/freesearch/<keyword>')
+def freesearchKeyword(keyword):
+    searchTweets = FreeSearch()
+    result = searchTweets.getKeywordSearchTweets(keyword)
+    return jsonify(result)
+
+
 
 # run the app.
 if __name__ == "__main__":

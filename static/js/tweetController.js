@@ -124,6 +124,24 @@ function search_by_keyword() {
 	});
 }
 
+
+function free_search_by_keyword() {
+	var selected_key = $('#selected_keyword').value;
+    //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
+	console.log(selected_keyword.value);
+	$.ajax({
+		url: '/freesearch/' + selected_keyword.value,
+		type: 'GET',
+		success: function(response) {
+			load_tweet(response);
+		},
+		error: function(error) {
+			console.log(JSON.stringify(error));
+			$('#testing').text(JSON.stringify(error));
+		}
+	});
+}
+
 function clearMarkers(){
 	for (var i = 0; i < marker_list.length; i++) {
           marker_list[i].setMap(null);
@@ -156,6 +174,13 @@ $(document).ready(function() {
 		e.preventDefault();
 		clearMarkers();
 		search_by_keyword();
+
+	}, false);
+
+	document.getElementById('searchsubmit').addEventListener('submit', function (e) {
+		e.preventDefault();
+		clearMarkers();
+		free_search_by_keyword();
 
 	}, false);
 
