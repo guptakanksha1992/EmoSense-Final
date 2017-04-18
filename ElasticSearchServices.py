@@ -36,7 +36,7 @@ class ElasticSearchServices:
         return results
 
     def create_collection(self, index, body):
-        print ("Creating collection...")
+        print "Creating collection with index:", index
         results = self.es.indices.create(
             index=index,
             ignore=400,

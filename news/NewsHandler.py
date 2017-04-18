@@ -53,7 +53,7 @@ class NewsHandler:
 
 		return result
 
-	def insertNews(self, title, author, url, url2image, source, timestamp, location_data):
+	def insertNews(self, title, author, url, url2image, source, timestamp, location_data, sentimentRating,anger, joy, sadness, fear, disgust ):
 
 		body = {
 			"title": title,
@@ -62,8 +62,18 @@ class NewsHandler:
 			"url2image": url2image,
 			"source": source,
 			"timestamp": timestamp,
-			"location": location_dataa
+			"location": location_data,
+			"sentiment": sentimentRating,
+			"anger": anger,
+			"joy":joy,
+			"sadness":sadness,
+			"fear": fear,
+			"disgust": disgust
 		}
+
+		print 'Inserting the following body:'
+		print body
+		print 'In index:', self.index, 'and document:', self.doc_type
 
 		result = self.es.store_data(self.index, self.doc_type, body)
 

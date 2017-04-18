@@ -2,8 +2,21 @@ import json
 from NewsHandler import NewsHandler
 from ElasticSearchServices import ElasticSearchServices
 import random
+#----------------------------------
+# For sending News Requests
 import requests
 
+f = open("API_KEY.txt")
+api_key = f.read()
+#----------------------------------
+# Sentiment Analysis
+import re
+import sys
+from watson_developer_cloud import NaturalLanguageUnderstandingV1
+import watson_developer_cloud.natural_language_understanding.features.v1 as features
+#----------------------------------
+
+KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment']
 REQUEST_LIMIT = 420
 
 #---- Elastic Search Details -------
@@ -33,7 +46,25 @@ collection = {
                 },
 				"location": {
 					"type": "geo_point"
-				}
+				},
+                "sentiment": {
+                    "type": "string"
+                },
+                "anger": {
+                    "type": "float"
+                },
+                "joy": {
+                    "type": "float"
+                },
+                "sadness": {
+                    "type": "float"
+                },
+                "fear": {
+                    "type": "float"
+                },
+                "disgust": {
+                    "type": "float"
+                }
 			}
 		}
 	}
@@ -49,72 +80,82 @@ try:
 except:
     print "Index already created"
 
-class NewsListener(StreamListener):
+def clean(text):
+    '''
+    Utility function to clean text by removing links, special characters
+    using simple regex statements.
+    '''
+    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", text).split())
 
-    def on_data(self, data):
+def sentimentAnalysis(text):
+    # sentiment analysis - watson username and password
+    wusername = '3389e807-52e0-40bd-b35c-39ca9c2b8836'
+    wpassword = 'myUPGrOO2FqC'
+
+    natural_language_understanding = NaturalLanguageUnderstandingV1(
+        version='2017-02-27',
+        username=wusername,
+        password=wpassword)
+
+    
+    response = natural_language_understanding.analyze(
+        text=text,
+        features=[features.Emotion(), features.Sentiment()])
+    
+    emotion_dict = response['emotion']['document']['emotion']
+    overall_sentiment = response['sentiment']['document']['label']
+
+    return overall_sentiment, emotion_dict   
+
+def fetchArticles():
+    news_handler = NewsHandler()
+
+    source_requests = requests.get('https://newsapi.org/v1/sources?language=en')
+
+    source_json_data = source_requests.json()
+    base_url = 'https://newsapi.org/v1/articles?source='
+
+    for i in source_json_data['sources']:
+        source = str(i['name'])
+        print source
+        print '--------'
+        url = base_url + i['id']
+        url = url + '&sortBy='
+        for j in i['sortBysAvailable']:
+            url_final = url + j + '&apiKey=' + api_key
+            r = requests.get(url_final)
+            for k in r.json()['articles']:
+                print k['title']
+                print k['author']
+                print k['url']
+                print k['urlToImage']
+                print k['publishedAt']
+                title = str(k['title'])
+                author = str(k['author'])
+                url = str(k['url'])
+                url2image = str(k['urlToImage'])
+                timestamp =  str(k['publishedAt'])
+                # Generating random geolocation data
+                final_longitude=random.uniform(-180.0,180.0)
+                final_latitude=random.uniform(-90.0, +90.0)
+                location_data = [final_longitude, final_latitude]
+
+                cleaned_title = clean(title)
+
+                # Sentiment analysis on title
+                sentimentRating, allemotions = sentimentAnalysis(cleaned_title)
+                anger=allemotions['anger']
+                joy=allemotions['joy']
+                sadness=allemotions['sadness']
+                fear=allemotions['fear']
+                disgust=allemotions['disgust']
+
+                # Inserting News Article to Storage
+                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentimentRating,anger, joy, sadness, fear, disgust ))
+
+def startFetch():
         try:
-            parse_data(data)
-        except:
-            # print(data)
-            print("No location data found")
-
-        return(True)
-
-    def on_error(self, status):
-        errorMessage = "Error - Status code " + str(status)
-        print(errorMessage)
-        if status == REQUEST_LIMIT:
-            print("Request limit reached. Trying again...")
-            exit()
-
-    def parse_data(data):
-        json_data_file = json.loads(data)
-        tweetHandler = TwitterHandler()
-
-        location = json_data_file["place"]
-        coordinates = json_data_file["coordinates"]
-
-        if coordinates is not None:
-            # print(json_data_file["coordinates"])
-            final_longitude = json_data_file["coordinates"][0]
-            final_latitude = json_data_file["coordinates"][0]
-        elif location is not None:
-            coord_array = json_data_file["place"]["bounding_box"]["coordinates"][0]
-            longitude = 0;
-            latitude = 0;
-            for object in coord_array:
-                longitude = longitude + object[0]
-                latitude = latitude + object[1]
-
-
-            final_longitude = longitude / len(coord_array)
-            final_latitude = latitude / len(coord_array)
-        else:
-
-        	# Insert code for random final_longitude, final_latitude here
-
-            final_longitude=random.uniform(-180.0,180.0)
-            final_latitude=random.uniform(-90.0, +90.0)
-            
-        tweetId = json_data_file['id_str']
-        tweet = json_data_file["text"]
-        author = json_data_file["user"]["name"]
-        timestamp = json_data_file["created_at"]
-
-        location_data = [final_longitude, final_latitude]
-        try:
-            print(tweetHandler.insertTweet(tweetId, location_data, tweet, author, timestamp))
-        except:
-            print("Failed to insert tweet")
-
-    def startStream():
-
-        auth = tweepy.OAuthHandler(consumerKey, consumerSecret)
-        auth.set_access_token(accessToken, accessSecret)
-        while True:
-            try:
-                twitterStream = Stream(auth, TweetListener())
-                twitterStream.filter(track=KEYWORDS)
-            except:
-                print("Restarting Stream")
-                continue
+            print 'Fetching News Articles!'
+            fetchArticles()
+        except Exception, e:
+            print("Exception in fetching News Articles:" + str(e))
