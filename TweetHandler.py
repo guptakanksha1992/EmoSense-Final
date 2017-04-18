@@ -68,7 +68,7 @@ class TwitterHandler:
 			"message": tweet,
 			"author": author,
 			"timestamp": timestamp,
-			"location": location_data,
+			"location": loßcation_data,
 			"sentiment": sentimentRating,
 			"anger": anger,
 			"joy":joy,

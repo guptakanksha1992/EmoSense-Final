@@ -1,5 +1,7 @@
 import tweepy
 from tweepy import Stream
+import ConfigParser
+import re
 from tweepy.streaming import StreamListener
 from TweetHandler import TwitterHandler
 from ElasticSearchServices import ElasticSearchServices
@@ -20,10 +22,18 @@ import watson_developer_cloud.natural_language_understanding.features.v1 as \
 # accessSecret='lrJiIAcGZRvxPNTTvo5TCe3KRJp6FaqNZGIOC0SSOHLsx'
 reload(sys)
 sys.setdefaultencoding('utf8')
-consumerKey = 'BsqAyEcVuXSuamuK633hhnqis'
-consumerSecret = 'hHpIC2dww24423zPD4qV6FGFn8E7RqMfTRsn6zDuTuKGILk4aC'
-accessToken = '821895090843119616-KPATvAYQ3m32S0hTg8HFwLYFJrqXMGX'
-accessSecret = 's5CnpP9jRi5eL5Fq6o4rSE5OiMm7S51UrZg20X8BhCCJi'
+
+config = ConfigParser.ConfigParser()
+config.readfp(open(r'./configurations.txt'))
+
+HOST = config.get('ES Instance', 'Host')
+PORT = config.get('ES Instance', 'Port')
+
+#consumer key, consumer secret, access token, access secret.
+consumerKey = config.get('Twitter API Keys', 'ConsumerKey')
+consumerSecret = config.get('Twitter API Keys', 'ConsumerSecret')
+accessToken = config.get('Twitter API Keys', 'AccessToken')
+accessSecret = config.get('Twitter API Keys', 'AccessSecret')
 
 
 KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment']
@@ -140,9 +150,9 @@ def parse_data(data):
     location_data = [final_longitude, final_latitude]
 
     # sentiment analysis
-    # watson username and password
-    wusername = '3389e807-52e0-40bd-b35c-39ca9c2b8836'
-    wpassword = 'myUPGrOO2FqC'
+    # #watson username and password
+    wusername = config.get('Watson Credentials','Username')
+    wpassword = config.get('Watson Credentials','Password')
 
     natural_language_understanding = NaturalLanguageUnderstandingV1(
         version='2017-02-27',
