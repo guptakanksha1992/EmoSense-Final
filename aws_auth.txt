@@ -1,3 +1,0 @@
-aws_api_key: AKIAIVGIR6FKP43BNAXQ
-aws_secret: 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
-elastic_search_host_address: search-emosensedomain-xk27wxxqol3yd4bcbbsxtmvsfm.us-east-1.es.amazonaws.com
