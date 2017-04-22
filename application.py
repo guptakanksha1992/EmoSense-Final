@@ -62,7 +62,6 @@ def freesearchKeyword(keyword):
     result = searchTweets.getKeywordSearchTweets(keyword)
     return jsonify(result)
 
-
 #---- Flask SocketIO Implementation
 @socketio.on('json')
 def handle_json(json):
