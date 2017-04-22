@@ -1,4 +1,5 @@
 from bigquery.client import get_client
+from bigquery.query_builder import render_query
 
 # BigQuery project id as listed in the Google Developers Console.
 project_id = 'mycloudproject-165020'
@@ -13,36 +14,73 @@ client = get_client(project_id, service_account=service_account,
                     private_key_file=key, readonly=True)
 
 
+selects = {
+    'start_time': {
+        'alias': 'Timestamp',
+        'format': 'INTEGER-FORMAT_UTC_USEC'
+    }
+}
+
+conditions = [
+    {
+        'field': 'GoldsteinScale',
+        'type': 'FLOAT',
+        'comparators': [
+            {
+                'condition': '>=',
+                'negate': False,
+                'value': 3.0
+            }
+        ]
+    }
+]
+
+grouping = ['Timestamp']
+
+having = [
+    {
+        'field': 'Timestamp',
+        'type': 'INTEGER',
+        'comparators': [
+            {
+                'condition': '==',
+                'negate': False,
+                'value': 1399478981
+            }
+        ]
+    }
+]
+
+order_by ={'fields': ['Timestamp'], 'direction': 'desc'}
+
+query = render_query(
+    'gdelt-bq:full',
+    ['events'],
+    select=selects,
+    conditions=conditions,
+    groupings=grouping,
+    having=having,
+    order_by=order_by,
+    limit=47
+)
 
 
 
-# JSON key provided by Google
-# json_key = 'newkey.json'
-#
-# client = get_client(json_key_file=json_key, readonly=True)
 
-# Submit an async query.
+
+
+
 
 try:
-     job_id, _results = client.query('SELECT * FROM [gdelt-bq:full.events] LIMIT 1000')
+
+     #job_id, _results = client.query('SELECT * FROM [gdelt-bq:full.events] WHERE GoldsteinScale = 3.0 LIMIT 10')
+     #job_id, _results = client.query('SELECT * FROM [gdelt-bq:extra.toytonelookup]  LIMIT 1000')
+     #job_id, _results = client.query('SELECT * FROM [gdelt-bq:internetarchivebooks]  LIMIT 1000')
+     job_id, _results = client.query(query)
      complete, row_count = client.check_job(job_id)
      results = client.get_query_rows(job_id)
+     #print (results["GoldsteinScale"])
      print (results)
-except:
-    print ("This gives you an error")
-
-
-# job_id, _results = client.query('SELECT MonthYear MonthYear, INTEGER(norm*100000)/1000 Percent
-# FROM (
-# SELECT ActionGeo_CountryCode, EventRootCode, MonthYear, COUNT(1) AS c, RATIO_TO_REPORT(c) OVER(PARTITION BY MonthYear ORDER BY c DESC) norm FROM [gdelt-bq:full.events]
-# GROUP BY ActionGeo_CountryCode, EventRootCode, MonthYear
-# )
-# WHERE ActionGeo_CountryCode='UP' and EventRootCode='14'
-# ORDER BY ActionGeo_CountryCode, EventRootCode, MonthYear;
-
-
-#
-
-#
-# # Retrieve the results.
-results = client.get_query_rows(job_id)
+except Exception as e:
+    print (str(e))
+    #print ("This gives you an error")
