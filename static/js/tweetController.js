@@ -124,13 +124,13 @@ function search_by_keyword() {
 	});
 }
 
-
 function free_search_by_keyword() {
-	var selected_key = $('#selected_keyword').value;
+	text = request.form['text']
+	// var selected_key = $('#selected_keyword').value;
     //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
-	console.log(selected_keyword.value);
+    // console.log(selected_keyword.value);
 	$.ajax({
-		url: '/freesearch/' + selected_keyword.value,
+		url: '/freesearch/' + text,
 		type: 'GET',
 		success: function(response) {
 			load_tweet(response);

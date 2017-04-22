@@ -50,7 +50,7 @@ class TwitterHandler:
 								}
 							}
 					    }
-				    }            
+				    }
 				}
 
 		size = 10000
@@ -58,11 +58,10 @@ class TwitterHandler:
 
 		return result
 
+
+
 	def insertTweet(self, t_id, location_data, tweet, author, timestamp, sentimentRating,anger, joy, sadness, fear, disgust ):
-		#print "Inserting the follwing tweet: "
-		# print id
-		#print tweet
-		#print author, timestamp, location_data[0], location_data[1]
+
 		body = {
 			"id": t_id,
 			"message": tweet,
