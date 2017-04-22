@@ -49,7 +49,6 @@ collection = {
 		}
 	}
 }
-
 # --------------------------------------------------------
 
 try:
@@ -57,7 +56,6 @@ try:
     collection_service.create_collection(index, collection)
 except:
     print "Index already created!!"
-
 
 def persistTweet(tweet):
     print "Tweet received by persister: ", tweet

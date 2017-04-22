@@ -34,15 +34,11 @@ def sentimentAnalysis(text):
         response = natural_language_understanding.analyze(
             text=correct_text,
             features=[features.Emotion(), features.Sentiment()])
-        # print text
-        # emotion_dict = response['emotion']['document']['emotion']
+
+        emotion_dict = response['emotion']['document']['emotion']
         overall_sentiment = response['sentiment']['document']['label']
 
-        # print ("The overall sentiment of the text is: "+overall_sentiment)
-        # print("The emotional quotient of the text is as follows: ")
-        # for key in emotion_dict:
-        #     print(key + " : " + str(emotion_dict[key]))
-        return overall_sentiment
+        return overall_sentiment, emotion_dict
 
     except Exception, e:
         print 'Sentiment API error ' + str(e)
@@ -58,5 +54,12 @@ def clean_tweet(tweet):
 
 def tweet_sentiment_analysis(tweet):
     cleansed_tweet = clean_tweet(tweet)
-    sentimentRating = sentimentAnalysis(cleansed_tweet)
-    return sentimentRating
+    # Sentiment analysis on title
+    sentiment, allemotions = sentimentAnalysis(cleansed_tweet)
+    anger = allemotions['anger']
+    joy = allemotions['joy']
+    sadness = allemotions['sadness']
+    fear = allemotions['fear']
+    disgust = allemotions['disgust']
+
+    return sentiment,anger,joy,sadness,fear,disgust

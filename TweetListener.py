@@ -169,7 +169,7 @@ def elastic_worker_sentiment_analysis():
         # Extracting tweet from message
         tweet = m.get_body()
 
-        sentiment = tweet_sentiment_analysis(tweet)
+        sentiment, anger, joy, sadness, fear, disgust = tweet_sentiment_analysis(tweet)
 
 
         # SNS Connection
@@ -183,6 +183,11 @@ def elastic_worker_sentiment_analysis():
         message_json = json.loads(tweet)
         # print 'Message_json', message_json
         message_json['sentiment'] = sentiment
+        message_json['anger'] = anger
+        message_json['joy'] = joy
+        message_json['sadness'] = sadness
+        message_json['fear'] = fear
+        message_json['disgust'] = disgust
 
         # Publishing to SNS
         conn.publish(topic=topic, message=json.dumps(message_json), message_structure=json)
