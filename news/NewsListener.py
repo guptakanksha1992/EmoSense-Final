@@ -2,12 +2,15 @@ import json
 from NewsHandler import NewsHandler
 from ElasticSearchServices import ElasticSearchServices
 import random,operator
+import ConfigParser
 #----------------------------------
 # For sending News Requests
 import requests
 
 f = open("API_KEY.txt")
 api_key = f.read()
+config = ConfigParser.ConfigParser()
+config.readfp(open(r'./configurations.txt'))
 #----------------------------------
 # Sentiment Analysis
 import re
@@ -91,14 +94,13 @@ def clean(text):
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", text).split())
 
 def sentimentAnalysis(text):
-    # sentiment analysis - watson username and password
-    wusername = '3389e807-52e0-40bd-b35c-39ca9c2b8836'
-    wpassword = 'myUPGrOO2FqC'
+    Username = config.get('Watson Credentials', 'Username')
+    Password = config.get('Watson Credentials', 'Password')
 
     natural_language_understanding = NaturalLanguageUnderstandingV1(
         version='2017-02-27',
-        username=wusername,
-        password=wpassword)
+        username=Username,
+        password=Password)
 
 
     response = natural_language_understanding.analyze(

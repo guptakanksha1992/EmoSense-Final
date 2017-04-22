@@ -60,6 +60,7 @@ except:
 
 
 def persistTweet(tweet):
+    print "Tweet received by persister: ", tweet
     tweeter = TwitterHandler()
     json_msg = json.loads(tweet['Message'])
     tid = json_msg['id']

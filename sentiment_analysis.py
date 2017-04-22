@@ -16,10 +16,14 @@ config.readfp(open(r'./configurations.txt'))
 HOST = config.get('ES Instance', 'elastic_search_host_address')
 PORT = config.get('ES Instance', 'Port')
 
+
+Username = config.get('Watson Credentials', 'Username')
+Password = config.get('Watson Credentials', 'Password')
+
 natural_language_understanding = NaturalLanguageUnderstandingV1(
     version='2017-02-27',
-    username=wusername,
-    password=wpassword)
+    username=Username,
+    password=Password)
 
 
 def sentimentAnalysis(text):
