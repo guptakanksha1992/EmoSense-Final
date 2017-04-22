@@ -157,7 +157,7 @@ def fetchArticles():
                 dominant_emotion = find_dominant_emotion(anger, joy, sadness, fear, disgust)
 
                 # Inserting News Article to Storage
-                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentiment, dominant_emotion, anger, joy, sadness, fear, disgust ))
+                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentiment, dominant_emotion, anger, joy, sadness, fear, disgust))
 
 def find_dominant_emotion(anger, joy, sadness, fear, disgust):
     emo_dictionary = {}

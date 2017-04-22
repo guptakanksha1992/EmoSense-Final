@@ -4,15 +4,12 @@ import json
 
 # ---- Elastic Search Details -------
 
-index = "newsdomain"
+index = "newsdomain3"
 collection = {
 	"mappings": {
 		"finaltweets2": {
 			"properties": {
 				"id": {
-					"type": "string"
-				},
-                "source": {
 					"type": "string"
 				},
 				"message": {

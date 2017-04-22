@@ -170,6 +170,7 @@ def elastic_worker_sentiment_analysis():
         tweet = m.get_body()
 
         sentiment, anger, joy, sadness, fear, disgust = tweet_sentiment_analysis(tweet)
+        print "Before SNS: ", tweet
 
 
         # SNS Connection
@@ -188,7 +189,7 @@ def elastic_worker_sentiment_analysis():
         message_json['sadness'] = sadness
         message_json['fear'] = fear
         message_json['disgust'] = disgust
-
+        print "Before SNS: ", message_json
         # Publishing to SNS
         conn.publish(topic=topic, message=json.dumps(message_json), message_structure=json)
         print "Published to SNS"

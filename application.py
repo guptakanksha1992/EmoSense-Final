@@ -100,6 +100,7 @@ def snsFunction():
         # print (notification['Message'])
         # print 'Type is :', type((notification['Message']))
         # print '-------------------------'
+        print "I am here!!"
         TweetPersister.persistTweet(notification)
         socketio.emit('first', {'notification': 'New Tweet!'})
     else:
@@ -114,7 +115,7 @@ if __name__ == "__main__":
     # removed before deploying a production app.
     #thread.start_new_thread(startTwitterRequests, ())
     print 'Running application.py'
-    thread.start_new_thread(fetchNewsArticles,())
+    # thread.start_new_thread(fetchNewsArticles,())
     application.debug = True
     twitter_thread = threading.Thread(target=startTwitterRequests)
     twitter_thread.daemon = True

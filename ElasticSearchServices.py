@@ -4,14 +4,14 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 
 myvars = {}
-with open("aws_auth.txt") as myfile:
+with open("configurations.txt") as myfile:
     for line in myfile:
         name, var = line.partition(":")[::2]
         myvars[name.strip()] = var.strip()
 
 # Our elastic search engine
 
-HOSTADDRESS =myvars['elastic_search_host_address']
+HOSTADDRESS=myvars['elastic_search_host_address']
 
 awsauth = AWS4Auth(myvars['aws_api_key'], myvars['aws_secret'], "us-east-1", 'es')
 
