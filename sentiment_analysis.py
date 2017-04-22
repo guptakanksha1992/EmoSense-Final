@@ -4,15 +4,17 @@ import sys
 from watson_developer_cloud import NaturalLanguageUnderstandingV1
 import watson_developer_cloud.natural_language_understanding.features.v1 as features
 import re
+import ConfigParser
 
 # --------------------------------------------------------------------------------------------------
 
 reload(sys)
 sys.setdefaultencoding('utf8')
+config = ConfigParser.ConfigParser()
+config.readfp(open(r'./configurations.txt'))
 
-# sentiment analysis watson username and password
-wusername = '1992498e-7c8e-4be1-abc9-7efab727c89b'
-wpassword = 'tohP1GX4NKQ3'
+HOST = config.get('ES Instance', 'elastic_search_host_address')
+PORT = config.get('ES Instance', 'Port')
 
 natural_language_understanding = NaturalLanguageUnderstandingV1(
     version='2017-02-27',

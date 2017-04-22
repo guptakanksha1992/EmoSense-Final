@@ -113,7 +113,6 @@ def parse_data(data):
     author = json_data_file["user"]["name"]
     timestamp = json_data_file["created_at"]
     location_data = [final_longitude, final_latitude]
-    tweepy
     # Tweet ready (without sentiment analysis by this point) - sending to queue
     # print tweetId, location_data, tweet, author, timestamp
 
@@ -130,18 +129,22 @@ def parse_data(data):
         print str(e)
 
 def publishToQueue(tweet):
-    # Establishing Connection to SQS
-    conn = boto.sqs.connect_to_region("us-east-1", aws_access_key_id=aws_api_key,
-                                      aws_secret_access_key=aws_secret)
-    q = conn.get_queue('EmoSense_Queue')  # Connecting to the SQS Queue named tweet_queue
-
-    m = Message()  # Creating a message Object
-
-    m.set_body(tweet)
-
     try:
+
+        # Establishing Connection to SQS
+        conn = boto.sqs.connect_to_region("us-east-1", aws_access_key_id=aws_api_key,
+                                          aws_secret_access_key=aws_secret)
+        print "Connected to SQS!!"
+        # print "Tweet is :", tweet
+        # print "All queues:", conn.get_all_queues()
+        # q = conn.create_queue('Trial2')
+        q = conn.get_queue('EmoSense_Queue')  # Connecting to the SQS Queue named tweet_queue
+        print "Connected to queue!!"
+        m = Message()  # Creating a message Object
+
+        m.set_body(tweet)
         q.write(m)
-        # print 'Added to Queue'
+        #  print 'Added to Queue'
     except Exception, e:
         print 'Failed to publish to Queue'
         print str(e)
@@ -183,7 +186,7 @@ def elastic_worker_sentiment_analysis():
 
         # Publishing to SNS
         conn.publish(topic=topic, message=json.dumps(message_json), message_structure=json)
-        # print "Published to SNS"
+        print "Published to SNS"
     except Exception, e:
         print 'Exception ' + str(e)
 

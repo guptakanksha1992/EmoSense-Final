@@ -4,7 +4,7 @@ class NewsHandler:
 
 	def __init__(self):
 		self.es = ElasticSearchServices()
-		self.index = "news"
+		self.index = "news2"
 		self.doc_type = "article"
 
 	def getNews(self, keyword):
@@ -21,7 +21,8 @@ class NewsHandler:
 
 		return result
 
-	def getNewsArticles(self, keyword, time, latitude, longitude):
+	def getNewsArticles(self, keyword, distance, latitude, longitude):
+		distance_string = distance + 'km'
 		if (type(latitude) != float):
 			latitude = float(latitude)
 
@@ -45,7 +46,7 @@ class NewsHandler:
 								}
 							}
 					    }
-				    }            
+				    }
 				}
 
 		size = 10000
@@ -53,7 +54,7 @@ class NewsHandler:
 
 		return result
 
-	def insertNews(self, title, author, url, url2image, source, timestamp, location_data, sentimentRating,anger, joy, sadness, fear, disgust ):
+	def insertNews(self, title, author, url, url2image, source, timestamp, location_data, sentiment,dominant_emotion, anger, joy, sadness, fear, disgust ):
 
 		body = {
 			"title": title,
@@ -63,7 +64,8 @@ class NewsHandler:
 			"source": source,
 			"timestamp": timestamp,
 			"location": location_data,
-			"sentiment": sentimentRating,
+			"sentiment": sentiment,
+			"dominant_emotion":dominant_emotion,
 			"anger": anger,
 			"joy":joy,
 			"sadness":sadness,
@@ -78,4 +80,3 @@ class NewsHandler:
 		result = self.es.store_data(self.index, self.doc_type, body)
 
 		return result
-

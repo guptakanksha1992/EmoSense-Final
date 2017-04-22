@@ -6,7 +6,7 @@ import random,operator
 # For sending News Requests
 import requests
 
-f = open("configurations.txt")
+f = open("API_KEY.txt")
 api_key = f.read()
 #----------------------------------
 # Sentiment Analysis
@@ -21,7 +21,7 @@ REQUEST_LIMIT = 420
 
 #---- Elastic Search Details -------
 
-index = "news"
+index = "news2"
 collection = {
 	"mappings": {
 		"article": {
@@ -48,7 +48,7 @@ collection = {
 					"type": "geo_point"
 				},
                 "sentiment": {
-                    "type": "float"
+                    "type": "string"
                 },
                 "dominant_emotion": {
                     "type": "string"
@@ -100,15 +100,15 @@ def sentimentAnalysis(text):
         username=wusername,
         password=wpassword)
 
-    
+
     response = natural_language_understanding.analyze(
         text=text,
         features=[features.Emotion(), features.Sentiment()])
-    
+
     emotion_dict = response['emotion']['document']['emotion']
     overall_sentiment = response['sentiment']['document']['label']
 
-    return overall_sentiment, emotion_dict   
+    return overall_sentiment, emotion_dict
 
 def fetchArticles():
     news_handler = NewsHandler()
@@ -146,7 +146,7 @@ def fetchArticles():
                 cleaned_title = clean(title)
 
                 # Sentiment analysis on title
-                sentimentRating, allemotions = sentimentAnalysis(cleaned_title)
+                sentiment, allemotions = sentimentAnalysis(cleaned_title)
                 anger=allemotions['anger']
                 joy=allemotions['joy']
                 sadness=allemotions['sadness']
@@ -155,7 +155,7 @@ def fetchArticles():
                 dominant_emotion = find_dominant_emotion(anger, joy, sadness, fear, disgust)
 
                 # Inserting News Article to Storage
-                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentimentRating, dominant_emotion, anger, joy, sadness, fear, disgust ))
+                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentiment, dominant_emotion, anger, joy, sadness, fear, disgust ))
 
 def find_dominant_emotion(anger, joy, sadness, fear, disgust):
     emo_dictionary = {}
