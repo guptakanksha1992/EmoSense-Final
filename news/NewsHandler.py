@@ -21,7 +21,7 @@ class NewsHandler:
 
 		return result
 
-	def getNewsArticles(self, keyword, time, latitude, longitude):
+	def getNewsArticles(self, keyword, latitude, longitude):
 		if (type(latitude) != float):
 			latitude = float(latitude)
 
@@ -36,7 +36,6 @@ class NewsHandler:
 				            },
 				        	"filter": {
 								"geo_distance": {
-									"distance": distance_string,
 									#"distance_type": "sloppy_arc",
 									"location": {
 										"lat": latitude,

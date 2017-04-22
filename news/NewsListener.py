@@ -6,7 +6,7 @@ import random
 # For sending News Requests
 import requests
 
-f = open("API_KEY.txt")
+f = open("configurations.txt")
 api_key = f.read()
 #----------------------------------
 # Sentiment Analysis
