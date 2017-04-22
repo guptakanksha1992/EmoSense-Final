@@ -48,7 +48,7 @@ collection = {
 					"type": "geo_point"
 				},
                 "sentiment": {
-                    "type": "string"
+                    "type": "float"
                 },
                 "dominant_emotion": {
                     "type": "string"
