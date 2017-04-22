@@ -6,7 +6,7 @@ class TwitterHandler:
 
 	def __init__(self):
 		self.es = ElasticSearchServices()
-		self.index = "emosense_index"
+		self.index = "newsdomain"
 		self.doc_type = "finaltweets2"
 
 	def getTweets(self, keyword):
@@ -68,7 +68,7 @@ class TwitterHandler:
 			"message": tweet,
 			"author": author,
 			"timestamp": timestamp,
-			"location": loßcation_data,
+			"location": location_data,
 			"sentiment": sentimentRating,
 			"anger": anger,
 			"joy":joy,

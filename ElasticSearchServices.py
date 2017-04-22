@@ -4,7 +4,7 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 
 myvars = {}
-with open("aws_auth.txt") as myfile:
+with open("configurations.txt") as myfile:
     for line in myfile:
         name, var = line.partition(":")[::2]
         myvars[name.strip()] = var.strip()
