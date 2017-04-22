@@ -1,7 +1,7 @@
 import json
 from NewsHandler import NewsHandler
 from ElasticSearchServices import ElasticSearchServices
-import random
+import random,operator
 #----------------------------------
 # For sending News Requests
 import requests
@@ -48,6 +48,9 @@ collection = {
 					"type": "geo_point"
 				},
                 "sentiment": {
+                    "type": "float"
+                },
+                "dominant_emotion": {
                     "type": "string"
                 },
                 "anger": {
@@ -149,9 +152,20 @@ def fetchArticles():
                 sadness=allemotions['sadness']
                 fear=allemotions['fear']
                 disgust=allemotions['disgust']
+                dominant_emotion = find_dominant_emotion(anger, joy, sadness, fear, disgust)
 
                 # Inserting News Article to Storage
-                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentimentRating,anger, joy, sadness, fear, disgust ))
+                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentimentRating, dominant_emotion, anger, joy, sadness, fear, disgust ))
+
+def find_dominant_emotion(anger, joy, sadness, fear, disgust):
+    emo_dictionary = {}
+    emo_dictionary["anger"] = anger
+    emo_dictionary["joy"] = joy
+    emo_dictionary["sadness"] = sadness
+    emo_dictionary["fear"] = fear
+    emo_dictionary["disgust"] = disgust
+
+    return max(emo_dictionary.iteritems(), key=operator.itemgetter(1))[0]
 
 def startFetch():
         try:
