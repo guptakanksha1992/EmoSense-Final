@@ -1,23 +1,20 @@
 html,
 body {
-  background-color: black;
+  background-color: Silver;
 },
 
 #map {
-        width: 100%;
-        height: 100%;
-        background-color: grey;
+          height: 500px;
+        width: 200%;
  }
-#map2 {
-        width: 100%;
-        height: 100%;
-        background-color: grey;
- }
+
 .button {
-    background-color: #333D3F
-    border: none;
+    background-color: #333D3F;
+    border:1px;
+    border-style:outset;
+    border-color: white;
     color: white;
-	  width: 150px;
+	width: 150px;
     padding: 15px 32px;
     text-align: center;
     text-decoration: none;
@@ -25,11 +22,14 @@ body {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-top: 198px;
+    top: 198px;
+    align-content: center;
 }
 .button2 {
     background-color: blue;
-    border: none;
+    border: 1px;
+    border-style: outset;
+    border-color: white;
     color: white;
 	width: 200px;
     padding: 15px 32px;
@@ -40,15 +40,6 @@ top: 198px;
     margin: 4px 2px;
     cursor: pointer;
 	top:50%;
-}
-#keyword_select_form {
-	width: 23%;
-	/* height: 30%; */
-	position: absolute;
-	top: 1%;
-	right: 1%;
-	background-color: rgba(255, 255, 255, 0.75);
-	padding: 2%;
 }
 
 #warning {
@@ -67,6 +58,7 @@ top: 198px;
 	white-space: nowrap;
 	margin-left: 10%;
 }
+
 
 .gallery {
     margin: 5px;
@@ -87,4 +79,53 @@ top: 198px;
 .desc {
     padding: 15px;
     text-align: center;
+}
+
+/* CSS For search box*/
+
+.stylish-input-group .input-group-addon{
+    background: white !important; 
+}
+.stylish-input-group .form-control{
+    border-right:0; 
+    box-shadow:0 0 0; 
+    border-color:#ccc;
+}
+.stylish-input-group button{
+    border:0;
+    background:transparent;
+}
+
+
+/* CSS for News Gallery */
+#myCarousel .carousel-caption {
+    left:0;
+    right:0;
+    bottom:0;
+    text-align:left;
+    padding:10px;
+    background:rgba(0,0,0,0.6);
+    text-shadow:none;
+}
+
+#myCarousel .list-group {
+    position:absolute;
+    top:0;
+    right:0;
+}
+#myCarousel .list-group-item {
+    border-radius:0px;
+    cursor:pointer;
+}
+#myCarousel .list-group .active {
+    background-color:blue;  
+}
+
+@media (min-width: 992px) { 
+    #myCarousel {padding-right:33.3333%;}
+    #myCarousel .carousel-controls {display:none;}  
+}
+@media (max-width: 991px) { 
+    .carousel-caption p,
+    #myCarousel .list-group {display:none;} 
 }
