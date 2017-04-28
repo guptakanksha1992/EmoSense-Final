@@ -43,17 +43,42 @@ def api_root():
     return render_template('index.html')
     # return 'Welcome'
 
+'''
+Searches Tweets based on a Keyword
 @application.route('/search/<keyword>')
 def searchKeyword(keyword):
     searchTweets = TwitterHandler()
     result = searchTweets.getTweets(keyword)
-    return jsonify(result)
+    return jsonify(result)'''
 
+'''
+Searches Tweets based on Keyword and Distance
 @application.route('/search/<keyword>/<distance>/<latitude>/<longitude>')
 def searchKeywordWithDistance(keyword, distance, latitude, longitude):
     searchTweets = TwitterHandler()
     result = searchTweets.getTweetsWithDistance(keyword, distance, latitude, longitude)
     return jsonify(result)
+'''
+
+@application.route('/search/')
+def sentiment_mapper():
+    
+    # Below variable function NEEDS TO BE CHECKED !!!!!!!!!!!!!!!
+    t_start = request.args.get('time_start')
+    t_end = request.args.get('time_end')
+    latitude = request.args.get('latitude')
+    longitude = request.args.get('longitude')
+
+    # Code to fetch tweets and find maximum emotion
+
+    # NACHIKET: INSERT CODE HERE
+
+    # By this point variable max_emotion should be available
+
+    # Code to fetch news from ES based on max_emotion
+
+    # AKHILESH AND AKANKSHA: insert code here
+
 
 # Route of ES search for free keyword search
 @application.route('/freesearch/<keyword>')
