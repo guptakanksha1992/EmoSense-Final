@@ -12,6 +12,9 @@ function initMap() {
 		map: map
 	});
 
+
+	infowindow = new google.maps.InfoWindow({});
+
 	console.log('Initialized value of marker', marker);
 
 	console.log('Initialized value of map', map);
@@ -56,15 +59,15 @@ function drop_marker(latitude, longitude, source_object, color) {
 	}
 
 	var markerImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + markerColor,
-        new google.maps.Size(80, 400),
-        new google.maps.Point(0,0),
-        new google.maps.Point(10, 34));
+		new google.maps.Size(80, 400),
+		new google.maps.Point(0,0),
+		new google.maps.Point(10, 34));
 
 	
 	var new_marker = new google.maps.Marker({
 		position: curr_lat_and_lng,
 		map: map,
-   		icon: markerImage
+		icon: markerImage
 	});
 
 	new_marker.addListener('click', function() {
@@ -76,6 +79,24 @@ function drop_marker(latitude, longitude, source_object, color) {
 
 }
 
+function image_emotion_mapper(emotion)
+{
+	switch(emotion){
+		case "happy": return '../static/images/happy.png';
+		break;
+		case "sad": return '../static/images/sad.png';
+		break;
+		case "angry": return '../static/images/angry.png';
+		break;
+		case "disgust": return '../static/images/disgust.png';
+		break;
+		case "fear": return '../static/images/fear.png';
+		break;
+		default: return '../static/images/neutral.png';
+
+	}
+}
+
 // Function to Load tweets and place them on the map
 function load_tweet(list) {
 	var object_list = list.hits.hits; 
@@ -83,6 +104,9 @@ function load_tweet(list) {
 	for (var i = 0; i < object_list.length; i++) {
 		curr_latitude = object_list[i]._source.location[1];
 		curr_longitude = object_list[i]._source.location[0];
+
+		//Check if the following variable is correct or not (most probably will require dominant emotion)
+		object_list[i]._source.img_source = image_emotion_mapper(object_list[i]._source.emotion);
 
 		if(object_list[i]._source.sentiment == 'positive'){
 			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 2);
