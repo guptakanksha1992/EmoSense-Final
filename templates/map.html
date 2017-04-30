@@ -1,31 +1,163 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-       #map {
-        height: 400px;
-        width: 100%;
-       }
-    </style>
-  </head>
-  <body>
-    <h3>My Google Maps Demo</h3>
-    <div id="map"></div>
-    <script>
+<head>
+  <style>
+   #map {
+    height: 400px;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+  <h3>My Google Maps Demo</h3>
+  <div id="map"></div>
+  <script>
+    var map = "";
+    var markerCluster;
+    var marker_list = [];
+    var geo_list = [];
+    var infowindow = '';
+    var min_zoom_level = 2;
+
+      // Function to add HTML code to the Marker
+      function toggleMarker(source_object) {
+        var contentString = '<div id="content">'+
+        '<div id="siteNotice">'+
+        '</div>'+
+        '<h1 id="firstHeading" class="firstHeading"></h1>'+
+        '<div id="bodyContent">'+
+        '<p>' + source_object.message + '</p>' +
+        '<b> Author: ' + source_object.author + '</b>' +
+        '<p>' + source_object.timestamp + '</p>' +
+        '<b> Sentiment: ' + source_object.sentiment + '</b>' +
+        '</div>'+
+        '</div>';
+        infowindow.setContent(contentString); 
+      }
+
       function initMap() {
         var uluru = {lat: -25.363, lng: 131.044};
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 4,
           center: uluru
         });
-        var marker = new google.maps.Marker({
-          position: uluru,
-          map: map
-        });
       }
+
+      function clearMarkers(){
+        for (var i = 0; i < marker_list.length; i++) {
+          marker_list[i].setMap(null);
+        }
+      }
+
+      function clearGeoTags(){
+        for (var i = 0; i < geo_list.length; i++) {
+          geo_list[i].setMap(null);
+        }
+      }
+
+      function drop_marker(latitude, longitude, source_object, color) {
+        var curr_lat_and_lng = {lat: latitude, lng: longitude};
+
+        // Color-map {0:Red, 1:Grey, 2:Green}
+        var markerColor;
+
+        switch (color) {
+          case 0:
+          markerColor = 'FF0000';
+          break;
+          case 1:
+          markerColor = 'C0C0C0';
+          break;
+          case 2:
+          markerColor = '3AA91E';
+          break;
+          default:
+          markerColor = 'C0C0C0';
+        }
+
+        var markerImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + markerColor,
+          new google.maps.Size(80, 400),
+          new google.maps.Point(0,0),
+          new google.maps.Point(10, 34));
+
+        
+        var new_marker = new google.maps.Marker({
+          position: curr_lat_and_lng,
+          map: map,
+          icon: markerImage
+        });
+
+        new_marker.addListener('click', function() {
+          toggleMarker(source_object);
+          infowindow.open(map, new_marker);
+        });
+
+        marker_list.push(new_marker);
+      }
+
+      // Function to Load tweets and place them on the map
+      function load_tweet(list) {
+        var object_list = list.hits.hits; 
+        console.log(JSON.stringify(object_list));
+        for (var i = 0; i < object_list.length; i++) {
+          curr_latitude = object_list[i]._source.location[1];
+          curr_longitude = object_list[i]._source.location[0];
+
+          if(object_list[i]._source.sentiment == 'positive'){
+            drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 2);
+          } else if(object_list[i]._source.sentiment == 'negative'){
+            drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 0);
+          } else {
+            drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 1);
+          }
+        }
+
+      }
+
+      function search_by_geo_distance(latitude, longitude) {
+        clearMarkers();
+        load_tweet(response);
+      }
+
+      function placeMarker(location) {
+        clearGeoTags();
+        var markerColor = '0000FF';
+        var markerImage = new google.maps.MarkerImage(
+          "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + markerColor,
+          new google.maps.Size(80, 400),
+          new google.maps.Point(0,0),
+          new google.maps.Point(10, 34));
+        var marker = new google.maps.Marker({
+          position: location,
+          map: map,
+          title: "Tweets around this area",
+          icon: markerImage
+        });
+        geo_latitude = marker.getPosition().lat();
+        geo_longitude = marker.getPosition().lng();
+        geo_list.push(marker);
+        search_by_geo_distance(geo_latitude, geo_longitude);
+      }
+
+      $(document).ready(function(){
+
+        initMap();
+
+        console.log('In the ready function')
+
+        a = google.maps.event.addListener(map, 'click', function(event) {
+          console.log('Caught a click to the map!')
+        // Once the Click has been caught, placeMarker function should be called
+        placeMarker(event.latLng);
+      });
+
+        console.log(a);
+
+      });
+
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfLyBKivYy0v-7sdMtqmpO2cK92X8n-a4&callback=initMap">
-    </script>
-  </body>
+  </script>
+</body>
 </html>
