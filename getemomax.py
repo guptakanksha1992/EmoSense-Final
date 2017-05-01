@@ -2,6 +2,12 @@ from ElasticSearchServices import ElasticSearchServices
 
 
 def getKeywordSearchTweets(keyword, latitude, longitude, starttime, endtime):
+    value_joy = 0
+    value_angry = 0
+    value_fear = 0
+    value_disgust = 0
+    value_sadness = 0
+    EMOVALUE=[]
     starttime = request.args.get('starttime')
     endtime = request.args.get('endtime')
     location = request.args.get('location')
@@ -12,15 +18,16 @@ def getKeywordSearchTweets(keyword, latitude, longitude, starttime, endtime):
     "query":{
                 "bool" : {
                     "must" : [
-                        {"match":{"dominant_emotion":"sadness"}},
+                        {"match":{"sentiment":"neutral"}}
+                        ],
+                    "must_not":
                         {"range": {
                     "timestamp":{
-                        "gte": "2017-04-23",
-                        "lte": "now"
+                        "gte": "now",
+                        "lte": "2016"
                     }
                  }
-                }
-                        ],
+                },
             "filter":{
             "geo_distance" : {
                 "distance" : "2000km",
@@ -38,4 +45,18 @@ def getKeywordSearchTweets(keyword, latitude, longitude, starttime, endtime):
     size = 10000
     result = es.search(index, doc_type, body, size)
 
-    return result
+    value_angry = value_angry + result['angry']
+    EMOVALUE.append(value_angry)
+    value_disgust = value_disgust + result['disgust']
+    EMOVALUE.append(value_disgust)
+    value_fear = value_fear + result['fear']
+    EMOVALUE.append(value_fear)
+    value_joy = value_joy + result['joy']
+    EMOVALUE.append(value_joy)
+    value_sadness = value_sadness + result['sadness']
+    EMOVALUE.append(value_sadness)
+
+
+
+
+    return EMOVALUE
