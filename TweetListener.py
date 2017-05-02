@@ -31,10 +31,10 @@ REQUEST_LIMIT = 420
 
 #---- Elastic Search Details -------
 
-index = "emosense_index"
+index = "tweet_index"
 collection = {
 	"mappings": {
-		"finaltweets2": {
+		"tweets": {
 			"properties": {
 				"id": {
 					"type": "string"

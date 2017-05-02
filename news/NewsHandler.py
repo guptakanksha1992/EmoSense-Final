@@ -4,8 +4,8 @@ class NewsHandler:
 
 	def __init__(self):
 		self.es = ElasticSearchServices()
-		self.index = "news"
-		self.doc_type = "article"
+		self.index = "news_index"
+		self.doc_type = "news"
 
 	def getNews(self, keyword):
 		body = {
