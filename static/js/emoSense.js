@@ -23,17 +23,17 @@ function initMap() {
 
 // Function to add HTML code to the Marker
 function toggleMarker(source_object) {
-	var contentString = '<div id="content">'+
-	'<div id="siteNotice">'+
-	'</div>'+
-	'<h1 id="firstHeading" class="firstHeading"></h1>'+
-	'<div id="bodyContent">'+
-	'<p>' + source_object.message + '</p>' +
-	'<b> Author: ' + source_object.author + '</b>' +
-	'<p>' + source_object.timestamp + '</p>' +
-	'<b> Sentiment: ' + source_object.sentiment + '</b>' +
-	'</div>'+
-	'</div>';
+	var contentString = '<div style="float:left"><img src="'+source_object.img_source+'"></div><div style="float:right; padding: 10px;"><div id="content">'+
+        '<div id="siteNotice">'+
+        '</div>'+
+        '<h1 id="firstHeading" class="firstHeading"></h1>'+
+        '<div id="bodyContent">'+
+        '<p>' + source_object.message + '</p>' +
+        '<b> Author: ' + source_object.author + '</b>' +
+        '<p>' + source_object.timestamp + '</p>' +
+        '<b> Sentiment: ' + source_object.sentiment + '</b>' +
+        '</div>'+
+        '</div>';
 	infowindow.setContent(contentString); 
 }
 
@@ -82,19 +82,49 @@ function drop_marker(latitude, longitude, source_object, color) {
 function image_emotion_mapper(emotion)
 {
 	switch(emotion){
-		case "happy": return '../static/images/happy.png';
+		case "happy": return '/static/images/happy.png';
 		break;
-		case "sad": return '../static/images/sad.png';
+		case "sad": return '/static/images/sad.png';
 		break;
-		case "angry": return '../static/images/angry.png';
+		case "angry": return '/static/images/angry.png';
 		break;
-		case "disgust": return '../static/images/disgust.png';
+		case "disgust": return '/static/images/disgust.png';
 		break;
-		case "fear": return '../static/images/fear.png';
+		case "fear": return '/static/images/fear.png';
 		break;
-		default: return '../static/images/neutral.png';
+		default: return '/static/images/neutral.png';
 
 	}
+}
+
+// Function to calculate the dominant emotion for a tweet
+function max_emotion(object){
+	//console.log(object);
+
+	var happy_value, sad_value, angry_value, disgust_value, fear_value;
+
+	happy_value = object.joy;
+	sad_value = object.sadness;
+	angry_value = object.anger;
+	disgust_value = object.disgust;
+	fear_value = object.fear;
+
+	console.log('Emotion variables',happy_value, sad_value, angry_value, disgust_value, fear_value);
+	switch(Math.max(happy_value, sad_value, angry_value, disgust_value, fear_value)){
+		case happy_value: return 'happy';
+		break;
+		case sad_value: return 'sad';
+		break;
+		case angry_value: return 'angry';
+		break;
+		case disgust_value: return 'disgust';
+		break;
+		case fear_value: return 'fear';
+		break;
+		default: return 'no max value';
+		break;
+	}
+
 }
 
 // Function to Load tweets and place them on the map
@@ -106,7 +136,11 @@ function load_tweet(list) {
 		curr_longitude = object_list[i]._source.location[0];
 
 		//Check if the following variable is correct or not (most probably will require dominant emotion)
-		object_list[i]._source.img_source = image_emotion_mapper(object_list[i]._source.emotion);
+
+		dominant_emotion = max_emotion(object_list[i]._source);
+		console.log('Dominant emotion is:', dominant_emotion);
+		object_list[i]._source.img_source = image_emotion_mapper(dominant_emotion);
+		console.log(object_list[i]._source.img_source);
 
 		if(object_list[i]._source.sentiment == 'positive'){
 			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 2);
@@ -177,13 +211,15 @@ function load_news(list) {
 
 function search_by_geo_distance(latitude, longitude) {
 	clearMarkers();
-	var selected_key = $('#selected_keyword').value;
-	var selected_dist = 1000;
+	console.log('In search_by_geo_distance function');
+	console.log('selected_keyword global variable\'s value:', selected_keyword);
+	var selected_key = selected_keyword;
+	var selected_distance = 1000;
     //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
-    console.log(selected_distance.value);
+    console.log('Selected Distance:',selected_distance);
     // This Ajax call is for populating the tweets
     $.ajax({
-    	url: '/search/' + selected_keyword.value + '/' + selected_distance.value + '/' + latitude + '/' + longitude,
+    	url: '/search/' + selected_keyword + '/' + selected_distance + '/' + latitude + '/' + longitude,
     	type: 'GET',
     	success: function(response) {
     		console.log(JSON.stringify(response));
@@ -197,12 +233,12 @@ function search_by_geo_distance(latitude, longitude) {
 
     // This Ajax call is for populating the Graph
     $.ajax({
-    	url: '/graph/' + start_time.value + '/' + end_time.value + '/' + latitude + '/' + longitude,
+    	url: '/graph/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
     	type: 'GET',
     	success: function(response) {
-    		console.log('In the AJAX Call')
+    		console.log('In the AJAX Call for Graphs')
     		console.log(JSON.stringify(response));
-    		load_graph(response);
+    		//load_graph(response);
     	},
     	error: function(error) {
     		console.log(JSON.stringify(error));
@@ -213,11 +249,11 @@ function search_by_geo_distance(latitude, longitude) {
 
     // This Ajax call is for populating the News Carousal
     $.ajax({
-    	url: '/search/' + selected_keyword.value + '/' + selected_distance.value + '/' + latitude + '/' + longitude,
+    	url: '/search/' + selected_keyword + '/' + selected_distance + '/' + latitude + '/' + longitude,
     	type: 'GET',
     	success: function(response) {
     		console.log(JSON.stringify(response));
-    		load_news(response);
+    		//load_news(response);
     	},
     	error: function(error) {
     		console.log(JSON.stringify(error));
@@ -227,12 +263,11 @@ function search_by_geo_distance(latitude, longitude) {
 
 }
 
-function search_by_keyword() {
-	var selected_key = $('#selected_keyword').value;
+function search_by_keyword(selected_keyword) {
     //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
-    console.log(selected_keyword.value);
+    console.log(selected_keyword);
     $.ajax({
-    	url: '/search/' + selected_keyword.value,
+    	url: '/search/' + selected_keyword,
     	type: 'GET',
     	success: function(response) {
     		load_tweet(response);
@@ -271,7 +306,7 @@ var marker_list = [];
 var geo_list = [];
 var infowindow = '';
 var min_zoom_level = 2;
-
+var selected_keyword;
 
 $(document).ready(function(){
 
@@ -316,10 +351,46 @@ $(document).ready(function(){
 
 	console.log(a);
 
-	document.getElementById('keyword_select_form').addEventListener('submit', function (e) {
+	// Adding Listeners for the buttons
+
+	document.getElementById('sports').addEventListener('click', function (e) {
 		e.preventDefault();
 		clearMarkers();
-		search_by_keyword();
+		selected_keyword = this.id;
+		search_by_keyword(selected_keyword);
+
+	}, false);
+
+	document.getElementById('politics').addEventListener('click', function (e) {
+		e.preventDefault();
+		clearMarkers();
+		selected_keyword = this.id;
+		search_by_keyword(selected_keyword);
+
+	}, false);
+
+	document.getElementById('technology').addEventListener('click', function (e) {
+		e.preventDefault();
+		clearMarkers();
+		selected_keyword = this.id;
+		search_by_keyword(selected_keyword);
+
+	}, false);
+
+	document.getElementById('health').addEventListener('click', function (e) {
+		e.preventDefault();
+		clearMarkers();
+		selected_keyword = this.id;
+		search_by_keyword(selected_keyword);
+
+	}, false);
+
+	document.getElementById('entertainment').addEventListener('click', function (e) {
+		e.preventDefault();
+		clearMarkers();
+		selected_keyword = this.id;
+		console.log('Keyword selected:', selected_keyword);
+		search_by_keyword(selected_keyword);
 
 	}, false);
 

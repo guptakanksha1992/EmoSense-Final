@@ -1,7 +1,7 @@
 import json
 import thread
 
-#from TweetListener import *
+from TweetListener import *
 from flask import Flask, render_template, jsonify
 
 from TweetHandler import TwitterHandler
@@ -59,7 +59,7 @@ def populate_graph(start_time, end_time, latitude, longitude):
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
-    #thread.start_new_thread(startTwitterRequests, ())
+    thread.start_new_thread(startTwitterRequests, ())
     #thread.start_new_thread(fetchNewsArticles,())
     application.debug = True
     application.run()

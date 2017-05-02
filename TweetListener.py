@@ -129,9 +129,9 @@ def parse_data(data):
     else:
 
     	# Insert code for random final_longitude, final_latitude here
-
-        final_longitude=random.uniform(-180.0,180.0)
-        final_latitude=random.uniform(-90.0, +90.0)
+        return
+        #final_longitude=random.uniform(-180.0,180.0)
+        #final_latitude=random.uniform(-90.0, +90.0)
         
     tweetId = json_data_file['id_str']
     tweet = json_data_file["text"]

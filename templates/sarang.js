@@ -122,9 +122,9 @@
         source_object.message = "Hello";
         source_object.author = "Sarang Karpate";
         source_object.timestamp = "30 Apr 2017";
-        source_object.sentiment = 'negative';
+        source_object.sentiment = 'positive';
 
-        source_object.img_source = image_emotion_mapper('angry');
+        source_object.img_source = image_emotion_mapper('disgust');
 
 
         if(source_object.sentiment == 'positive'){
