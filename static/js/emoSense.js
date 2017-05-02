@@ -145,12 +145,49 @@ function get_type(thing){
     return Object.prototype.toString.call(thing);
 }
 
+// Function to Load graph variables and place them on the HighCharts graph
+function load_graph(list) {
+	var object_list = list.hits.hits; 
+	console.log(JSON.stringify(object_list));
+	for (var i = 0; i < object_list.length; i++) {
+
+		// Populate the values of the graph here
+		curr_latitude = object_list[i]._source.location[1];
+		curr_longitude = object_list[i]._source.location[0];
+
+		//Check if the following variable is correct or not (most probably will require dominant emotion)
+		object_list[i]._source.img_source = image_emotion_mapper(object_list[i]._source.emotion);
+
+		
+	}
+
+}
+
+// Function to Load news variables and place them on the Carousal
+function load_news(list) {
+	var object_list = list.hits.hits; 
+	console.log(JSON.stringify(object_list));
+	for (var i = 0; i < object_list.length; i++) {
+
+		// Populate the values of the graph here
+		curr_latitude = object_list[i]._source.location[1];
+		curr_longitude = object_list[i]._source.location[0];
+
+		//Check if the following variable is correct or not (most probably will require dominant emotion)
+		object_list[i]._source.img_source = image_emotion_mapper(object_list[i]._source.emotion);
+
+		
+	}
+
+}
+
 function search_by_geo_distance(latitude, longitude) {
 	clearMarkers();
 	var selected_key = $('#selected_keyword').value;
-	var selected_dist = $('#selected_distance').value;
+	var selected_dist = 1000;
     //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
     console.log(selected_distance.value);
+    // This Ajax call is for populating the tweets
     $.ajax({
     	url: '/search/' + selected_keyword.value + '/' + selected_distance.value + '/' + latitude + '/' + longitude,
     	type: 'GET',
@@ -163,6 +200,36 @@ function search_by_geo_distance(latitude, longitude) {
     		$('#testing').text(JSON.stringify(error));
     	}
     });
+
+    // This Ajax call is for populating the Graph
+    $.ajax({
+    	url: '/search/' + selected_keyword.value + '/' + selected_distance.value + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		console.log(JSON.stringify(response));
+    		load_graph(response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
+
+
+    // This Ajax call is for populating the News Carousal
+    $.ajax({
+    	url: '/search/' + selected_keyword.value + '/' + selected_distance.value + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		console.log(JSON.stringify(response));
+    		load_news(response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
+
 }
 
 function search_by_keyword() {
