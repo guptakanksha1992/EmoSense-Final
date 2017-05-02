@@ -2,53 +2,7 @@ from ElasticSearchServices import ElasticSearchServices
 
 size = 100
 
-def graph_emotion_aggregates(start_time, end_time, latitude, longitude):
-
-    if (type(latitude) != float):
-            latitude = float(latitude)
-
-    if (type(longitude) != float):
-        longitude = float(longitude)
-
-    #print 'Start time:', start_time, 'End time:', end_time, 'Latitude:', latitude, 'Longitude:', longitude
-
-    # Elastic Search service object
-    es = ElasticSearchServices()
-
-    body = {
-        "query":{
-                    "bool" : {
-                        "must": [
-                            {"range": {
-                        "timestamp":{
-                            "lte": start_time,
-                            "gte": end_time
-                        }
-                     }}
-                    ],
-                "filter":{
-                "geo_distance" : {
-                    "distance" : "5000km",
-                    "location" : {
-                        "lat" : latitude,
-                        "lon" : longitude
-                    }
-                }
-            }
-
-            }
-        }
-    }
-
-    size = 10000
-    results = es.search(
-            index = 'newsdomain3',
-            doc_type = 'finaltweets2',
-            body = body,
-            size = size
-        )
-
-
+def graph_emotion_aggregates(results):
 
     daily_collated_emotions_dict = {}
 
