@@ -20,10 +20,7 @@ class ElasticSearchServices:
     def __init__(self):
         self.es = Elasticsearch(
             hosts=[{'host': HOSTADDRESS, 'port': 443}],
-            http_auth=awsauth,
             use_ssl=True,
-            verify_certs=True,
-            connection_class=RequestsHttpConnection
         )
 
     def store_data(self, index, doc_type, body):

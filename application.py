@@ -12,6 +12,10 @@ from news import NewsHandler
 from news.NewsListener import *
 #----------------------------------------
 
+# Graph Populating code
+from GraphHandler import *
+#----------------------------------------
+
 
 # function that pulls tweets from twitter
 def startTwitterRequests():
@@ -27,7 +31,8 @@ application = Flask(__name__)
 
 @application.route('/')
 def api_root():
-    return render_template('index.html')
+    # Loading initial values
+    return render_template('test.html')
     # return 'Welcome'
 
 @application.route('/search/<keyword>')
@@ -42,11 +47,19 @@ def searchKeywordWithDistance(keyword, distance, latitude, longitude):
     result = searchTweets.getTweetsWithDistance(keyword, distance, latitude, longitude)
     return jsonify(result)
 
+# Graph End point
+@application.route('/graph/<start_time>/<end_time>/<latitude>/<longitude>')
+def populate_graph(start_time, end_time, latitude, longitude):
+    collated_emotions = graph_emotion_aggregates(start_time, end_time, latitude, longitude)
+    context = dict(collated_emotions = collated_emotions)
+    print 'Aggregated Emotions:', context
+    return jsonify(context)
+
 # run the app.
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
     #thread.start_new_thread(startTwitterRequests, ())
-    thread.start_new_thread(fetchNewsArticles,())
+    #thread.start_new_thread(fetchNewsArticles,())
     application.debug = True
     application.run()
