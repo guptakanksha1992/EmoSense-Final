@@ -13,6 +13,7 @@ from flask import Flask, render_template, jsonify, request
 from TweetHandler import TwitterHandler
 import TweetPersister
 import time
+from news import NewsHandler as ne
 import requests
 
 
@@ -74,11 +75,12 @@ def sentiment_mapper():
     # NACHIKET: INSERT CODE HERE
 
     # By this point variable max_emotion should be available
-
+    max_emotion="anger"
     # Code to fetch news from ES based on max_emotion
 
-    # AKHILESH AND AKANKSHA: insert code here
-
+    # AKHILESH AND AKANKSHA: insert code here- we have time-tstart, tend, location-latitude and longitude and max emotion.
+    news_result=ne.NewsHandler.getNewsWithDistance(latitude, longitude, t_start, t_end, max_emotion)
+    return jsonify(news_result)
 
 # Route of ES search for free keyword search
 @application.route('/freesearch/<keyword>')
@@ -114,17 +116,6 @@ def snsFunction():
         url = requests.get(notification['SubscribeURL'])
         # print(url)
     elif headers == 'Notification':
-        # print 'Persisting in Elastic BeanStalk'
-        # print 'Normal Notification'
-        # print'---------------------'
-        # print notification
-        # print 'Type is :', type(notification)
-        # print '-------------------------'
-        # print 'Json.loads result of notification'
-        # print '---------------------------------'
-        # print (notification['Message'])
-        # print 'Type is :', type((notification['Message']))
-        # print '-------------------------'
         print "I am here!!"
         TweetPersister.persistTweet(notification)
         socketio.emit('first', {'notification': 'New Tweet!'})
@@ -141,7 +132,7 @@ if __name__ == "__main__":
     #thread.start_new_thread(startTwitterRequests, ())
     print 'Running application.py'
     # thread.start_new_thread(fetchNewsArticles,())
-    application.debug = True
+    #application.debug = True
     twitter_thread = threading.Thread(target=startTwitterRequests)
     twitter_thread.daemon = True
     twitter_thread.start()
