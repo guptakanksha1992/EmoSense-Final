@@ -63,7 +63,7 @@ def searchKeywordWithDistance(keyword, distance, latitude, longitude):
 
 @application.route('/search/')
 def sentiment_mapper():
-    
+
     # Below variable function NEEDS TO BE CHECKED !!!!!!!!!!!!!!!
     t_start = request.args.get('time_start')
     t_end = request.args.get('time_end')
@@ -71,9 +71,60 @@ def sentiment_mapper():
     longitude = request.args.get('longitude')
 
     # Code to fetch tweets and find maximum emotion
+    value_joy = 0
+    value_angry = 0
+    value_fear = 0
+    value_disgust = 0
+    value_sadness = 0
+    EMOVALUE=[]
+    es = ElasticSearchServices()
+    index = "newsdomain3"
+    doc_type = "finaltweets2"
+    body = {
+    "query":{
+                "bool" : {
+                    "must" : [
+                        {"match":{"sentiment":"neutral"}}
+                        ],
+                    "must_not":
+                        {"range": {
+                    "timestamp":{
+                        "gte": "now",
+                        "lte": "2016"
+                    }
+                 }
+                },
+            "filter":{
+            "geo_distance" : {
+                "distance" : "2000km",
+                "location" : {
+                    "lat" : 40.06889420539272,
+                    "lon" : -120.32554198435977
+                }
+            }
+        }
+
+        }
+    }
+    }
+
+    size = 10000
+    result = es.search(index, doc_type, body, size)
+
+    value_angry = value_angry + result['angry']
+    EMOVALUE.append(value_angry)
+    value_disgust = value_disgust + result['disgust']
+    EMOVALUE.append(value_disgust)
+    value_fear = value_fear + result['fear']
+    EMOVALUE.append(value_fear)
+    value_joy = value_joy + result['joy']
+    EMOVALUE.append(value_joy)
+    value_sadness = value_sadness + result['sadness']
+    EMOVALUE.append(value_sadness)
+
 
     # NACHIKET: INSERT CODE HERE
- 
+
     # By this point variable max_emotion should be available
     max_emotion="anger"
     # Code to fetch news from ES based on max_emotion
