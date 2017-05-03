@@ -37,17 +37,71 @@ a = (a[0:10])
 date = a.replace('-','')
 print (date)
 try:
-    job_id, _results  = client.query("""SELECT MonthYear MonthYear, INTEGER(norm*100000)/1000 Percent FROM (
-    SELECT ActionGeo_CountryCode, EventRootCode, MonthYear, COUNT(1) AS c, RATIO_TO_REPORT(c) OVER(PARTITION BY MonthYear ORDER BY c DESC) norm FROM [gdelt-bq:full.events]
-    GROUP BY ActionGeo_CountryCode, EventRootCode, MonthYear)
-    WHERE ActionGeo_CountryCode='UP'
-    ORDER BY MonthYear""")
+    selects = {
+        'SQLDATE': {
+            'alias': 'SQLDATE',
+            'format': 'INTEGER-FORMAT_UTC_USEC'
+        }
+    }
+
+    conditions = [
+        {
+            'field': 'SQLDATE',
+            'type': 'INTEGER',
+            'comparators': [
+                {
+                    'condition': '==',
+                    'negate': False,
+                    'value': 19790123
+                }
+            ]
+        }
+    ]
+
+    grouping = ['SQLDATE']
+
+    having = [
+        {
+            'field': 'SQLDATE',
+            'type': 'INTEGER',
+            'comparators': [
+                {
+                    'condition': '==',
+                    'negate': False,
+                    'value': 19790123
+                }
+            ]
+        }
+    ]
+
+    order_by ={'fields': ['SQLDATE'], 'direction': 'desc'}
+
+    query = render_query(
+        'gdelt-bq:full',
+        ['events'],
+        select=selects,
+        conditions=conditions,
+        groupings=grouping,
+        having=having,
+        order_by=order_by,
+        limit=47
+    )
+    job_id, _results = client.query('''SELECT * FROM [gdelt-bq:full.events] WHERE (SQLDATE BETWEEN 19790123 AND 19790323) AND (ActionGeo_Lat BETWEEN 32.8191 AND 34.8191)
+    AND (ActionGeo_Long BETWEEN -81.9066 AND -79.9066)
+    ORDER BY GoldsteinScale DESC LIMIT 200 ''')
+
+    #job_id, _results = client.query(query)
+    # job_id, _results  = client.query("""SELECT SQLDATE SQLDATE, INTEGER(norm*100000)/1000 Percent FROM (
+    # SELECT EventRootCode, SQLDATE, GoldsteinScale, COUNT(1) AS c, RATIO_TO_REPORT(c) OVER(PARTITION BY SQLDATE ORDER BY c DESC) norm FROM [gdelt-bq:full.events]
+    # GROUP BY EventRootCode, SQLDATE, GoldsteinScale)
+    # WHERE SQLDATE = 19790123
+    # ORDER BY GoldsteinScale""".format(date))
 
     complete, row_count = client.check_job(job_id)
     results = client.get_query_rows(job_id)
-    print (results)
-    #for r in results:
-        #print (r['GoldsteinScale'])
+    #print (results)
+    for r in results:
+          print (r['GoldsteinScale'])
 except Exception as e:
     print (str(e))
 #     print ("This gives you an error")
