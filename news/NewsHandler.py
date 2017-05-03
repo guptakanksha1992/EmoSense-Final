@@ -54,7 +54,7 @@ class NewsHandler:
 
 		return result
 
-	def getNewsWithDistance(self, latitude, longitude, t_start, t_end, max_emotion)
+	def getNewsWithDistance(self, latitude, longitude, t_start, t_end, max_emotion):
 		distance=1000
 		distance_string = distance + 'km'
 		print ('Searching ', distance_string, ' from location Latitude: ', latitude, ' ; Longitude: ', longitude)
