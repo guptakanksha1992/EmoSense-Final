@@ -6,8 +6,8 @@ class TwitterHandler:
 
 	def __init__(self):
 		self.es = ElasticSearchServices()
-		self.index = "tweet_index"
-		self.doc_type = "tweets"
+		self.index = "newsdomain3"
+		self.doc_type = "finaltweets2"
 
 	def getTweets(self, keyword):
 		body = {

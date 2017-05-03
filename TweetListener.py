@@ -31,10 +31,10 @@ REQUEST_LIMIT = 420
 
 #---- Elastic Search Details -------
 
-index = "tweet_index"
+index = "newsdomain3"
 collection = {
 	"mappings": {
-		"tweets": {
+		"finaltweets2": {
 			"properties": {
 				"id": {
 					"type": "string"

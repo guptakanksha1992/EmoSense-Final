@@ -48,9 +48,9 @@ def searchKeywordWithDistance(keyword, distance, latitude, longitude):
     return jsonify(result)
 
 # Graph End point
-@application.route('/graph/<start_time>/<end_time>/<latitude>/<longitude>')
-def populate_graph(start_time, end_time, latitude, longitude):
-    collated_emotions = graph_emotion_aggregates(start_time, end_time, latitude, longitude)
+@application.route('/graph/<keyword>/<start_time>/<end_time>/<latitude>/<longitude>')
+def populate_graph(keyword, start_time, end_time, latitude, longitude):
+    collated_emotions = graph_emotion_aggregates(keyword, latitude, longitude, start_time, end_time)
     context = dict(collated_emotions = collated_emotions)
     print 'Aggregated Emotions:', context
     return jsonify(context)

@@ -21,10 +21,10 @@ REQUEST_LIMIT = 420
 
 #---- Elastic Search Details -------
 
-index = "news_index"
+index = "news2"
 collection = {
 	"mappings": {
-		"news": {
+		"article": {
 			"properties": {
 				"title": {
 					"type": "string"
