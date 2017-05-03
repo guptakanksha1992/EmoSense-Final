@@ -1,30 +1,38 @@
 import tweepy
 from tweepy import Stream
+import ConfigParser
 from tweepy.streaming import StreamListener
 from TweetHandler import TwitterHandler
 from ElasticSearchServices import ElasticSearchServices
 import random
 import json
-import re
-import sys
-from watson_developer_cloud import NaturalLanguageUnderstandingV1
-import watson_developer_cloud.natural_language_understanding.features.v1 as \
-    features
 
 
-#----------Twitter API Details---------------------------
-#
-# consumerKey='uJ8ywVGKTC7aubwomDuWrAu9t'
-# consumerSecret='qbcDPiGjdNGj3B2EiXja3z0ppxMenePTzp6X1nAur2CakwLF1G'
-# accessToken='3287103102-m7iUaz9H6eOmgl50DBMXPfePIywVFEnYldLAUoa'
-# accessSecret='lrJiIAcGZRvxPNTTvo5TCe3KRJp6FaqNZGIOC0SSOHLsx'
+#----------SQS & SNS Details---------------------------
+import boto.sns
+import boto.sqs
+from boto.sqs.message import Message
+#----------Sentiment Analysis methods------------------
+
+from sentiment_analysis import *
+
+
 reload(sys)
 sys.setdefaultencoding('utf8')
-consumerKey = 'BsqAyEcVuXSuamuK633hhnqis'
-consumerSecret = 'hHpIC2dww24423zPD4qV6FGFn8E7RqMfTRsn6zDuTuKGILk4aC'
-accessToken = '821895090843119616-KPATvAYQ3m32S0hTg8HFwLYFJrqXMGX'
-accessSecret = 's5CnpP9jRi5eL5Fq6o4rSE5OiMm7S51UrZg20X8BhCCJi'
 
+config = ConfigParser.ConfigParser()
+config.readfp(open(r'./configurations.txt'))
+
+HOST = config.get('ES Instance', 'elastic_search_host_address')
+PORT = config.get('ES Instance', 'Port')
+
+#consumer key, consumer secret, access token, access secret.
+consumerKey = config.get('Twitter API Keys', 'ConsumerKey')
+consumerSecret = config.get('Twitter API Keys', 'ConsumerSecret')
+accessToken = config.get('Twitter API Keys', 'AccessToken')
+accessSecret = config.get('Twitter API Keys', 'AccessSecret')
+aws_api_key = config.get('AWS Keys', 'aws_api_key')
+aws_secret = config.get('AWS Keys', 'aws_secret')
 
 KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment']
 REQUEST_LIMIT = 420
@@ -79,23 +87,19 @@ collection = {
 
 #--------------------------------------------------------
 
-
-try:
-    collection_service = ElasticSearchServices()
-    collection_service.create_collection(index, collection)
-except:
-    print ("Index already created")
-
 class TweetListener(StreamListener):
 
     def on_data(self, data):
         try:
             parse_data(data)
-        except Exception, e1:
-            # print(data)
-            print("No location data found" + str(e1))
+        except Exception, e:
+            print("Parsing Error " + str(e))
+        try:
+            elastic_worker_sentiment_analysis()
+        except Exception, e:
+            print("Elastic work sentiment Error " + str(e))
 
-        return(True)
+        return (True)
 
     def on_error(self, status):
         errorMessage = "Error - Status code " + str(status)
@@ -104,15 +108,37 @@ class TweetListener(StreamListener):
             print("Request limit reached. Trying again...")
             exit()
 
-def parse_data(data):
-    json_data_file = json.loads(data)
-    tweetHandler = TwitterHandler()
+def formatTweet(id, location_data, tweet, author, timestamp):
+    tweet = {
+        "id": id,
+        "message": tweet,
+        "author": author,
+        "timestamp": timestamp,
+        "location": location_data
+    }
+    return tweet
 
-    location = json_data_file["place"]
-    coordinates = json_data_file["coordinates"]
+
+def parse_data(data):
+    try:
+        json_data_file = json.loads(data)
+    except Exception, e:
+        print 'Parsing failed'
+        print str(e)
+    # Could be that json.loads has failed
+
+    # print 'JSON DATA FILE:', json_data_file
+
+    try:
+        location = json_data_file["place"]
+        coordinates = json_data_file["coordinates"]
+    except Exception, e:
+        print 'Location data parsing erroneous'
+        print str(e)
+
+    # Setting location of the tweet
 
     if coordinates is not None:
-        # print(json_data_file["coordinates"])
         final_longitude = json_data_file["coordinates"][0]
         final_latitude = json_data_file["coordinates"][0]
     elif location is not None:
@@ -122,90 +148,111 @@ def parse_data(data):
         for object in coord_array:
             longitude = longitude + object[0]
             latitude = latitude + object[1]
-
-
         final_longitude = longitude / len(coord_array)
         final_latitude = latitude / len(coord_array)
     else:
-
-    	# Insert code for random final_longitude, final_latitude here
+        # Insert code for random final_longitude, final_latitude here
         return
-        #final_longitude=random.uniform(-180.0,180.0)
-        #final_latitude=random.uniform(-90.0, +90.0)
         
     tweetId = json_data_file['id_str']
     tweet = json_data_file["text"]
     author = json_data_file["user"]["name"]
     timestamp = json_data_file["created_at"]
     location_data = [final_longitude, final_latitude]
+    # Tweet ready (without sentiment analysis by this point) - sending to queue
+    # print tweetId, location_data, tweet, author, timestamp
 
-    # sentiment analysis
-    # watson username and password
-    wusername = '3389e807-52e0-40bd-b35c-39ca9c2b8836'
-    wpassword = 'myUPGrOO2FqC'
-
-    natural_language_understanding = NaturalLanguageUnderstandingV1(
-        version='2017-02-27',
-        username=wusername,
-        password=wpassword)
-
-    def sentimentAnalysis(text):
-        # encoded_text = urllib.quote(text)
-        response = natural_language_understanding.analyze(
-            text=text,
-            features=[features.Emotion(), features.Sentiment()])
-        # print text
-        emotion_dict = response['emotion']['document']['emotion']
-        overall_sentiment = response['sentiment']['document']['label']
-
-        # print ("The overall sentiment of the text is: "+overall_sentiment)
-        #print("The emotional quotient of the text is as follows: ")
-        # for key in emotion_dict:
-        #     print(key + " : " + str(emotion_dict[key]))
-        return overall_sentiment, emotion_dict
-
-    def clean_tweet(tweet):
-        '''
-        Utility function to clean tweet text by removing links, special characters
-        using simple regex statements.
-        '''
-        return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
-
-    cleansed_tweet = clean_tweet(tweet)
-    sentimentRating, allemotions = sentimentAnalysis(cleansed_tweet)
-    anger=allemotions['anger']
-    joy=allemotions['joy']
-    sadness=allemotions['sadness']
-    fear=allemotions['fear']
-    disgust=allemotions['disgust']
-
-    print("me" ,tweetId, location_data, tweet, author, timestamp, sentimentRating, anger, joy, sadness, fear, disgust)
     try:
-        print(tweetHandler.insertTweet(tweetId, location_data, tweet, author, timestamp , sentimentRating,anger, joy, sadness, fear, disgust ))
+        # Format tweet into correct message format for SQS
+        formatted_tweet = formatTweet(tweetId, location_data, tweet, author, timestamp)
+        tweet = json.dumps(formatted_tweet)
+
+        # print 'Trying to publish to Queue the tweet', tweet
+        publishToQueue(tweet)
+
     except Exception, e:
-        print("Failed to insert tweet: " + str(e))
+        print("Failed to insert tweet into SQS")
+        print str(e)
+
+def publishToQueue(tweet):
+    try:
+
+        # Establishing Connection to SQS
+        conn = boto.sqs.connect_to_region("us-east-1", aws_access_key_id=aws_api_key,
+                                          aws_secret_access_key=aws_secret)
+        print "Connected to SQS!!"
+        # print "Tweet is :", tweet
+        # print "All queues:", conn.get_all_queues()
+        # q = conn.create_queue('Trial2')
+        q = conn.get_queue('EmoSense_Queue')  # Connecting to the SQS Queue named tweet_queue
+        print "Connected to queue!!"
+        m = Message()  # Creating a message Object
+
+        m.set_body(tweet)
+        q.write(m)
+        #  print 'Added to Queue'
+    except Exception, e:
+        print 'Failed to publish to Queue'
+        print str(e)
+
+def elastic_worker_sentiment_analysis():
+    # This method acts as an Elastic BeanStalk worker
+
+    # Receiving the message from SQS
+    '''print 'Fetching from SQS and publishing to SNS'
+                print '---------------------------------------'''
+    try:
+        conn = boto.sqs.connect_to_region("us-east-1",  aws_access_key_id=aws_api_key,
+                                      aws_secret_access_key=aws_secret)
+        q = conn.get_queue('EmoSense_Queue')
+
+        # Storing the result set
+        rs = q.get_messages()
+
+        # Extracting the message from resultset
+        m = rs[0]
+
+        # Extracting tweet from message
+        tweet = m.get_body()
+
+        sentiment, anger, joy, sadness, fear, disgust = tweet_sentiment_analysis(tweet)
+        print "Before SNS: ", tweet
+
+
+        # SNS Connection
+
+        conn = boto.sns.connect_to_region('us-east-1', aws_access_key_id=aws_api_key,
+                                      aws_secret_access_key=aws_secret)
+        topic = 'arn:aws:sns:us-east-1:836578494369:EmoSense_topic'
+
+        # Appending sentiment data to JSON Format of the message tweet
+
+        message_json = json.loads(tweet)
+        # print 'Message_json', message_json
+        message_json['sentiment'] = sentiment
+        message_json['anger'] = anger
+        message_json['joy'] = joy
+        message_json['sadness'] = sadness
+        message_json['fear'] = fear
+        message_json['disgust'] = disgust
+        print "Before SNS: ", message_json
+        # Publishing to SNS
+        conn.publish(topic=topic, message=json.dumps(message_json), message_structure=json)
+        print "Published to SNS"
+    except Exception, e:
+        print 'Exception ' + str(e)
+
 
 def startStream():
-
     auth = tweepy.OAuthHandler(consumerKey, consumerSecret)
     auth.set_access_token(accessToken, accessSecret)
     while True:
         try:
             twitterStream = Stream(auth, TweetListener())
-            twitterStream.filter(track=KEYWORDS)
-        except:
-            print("Restarting Stream")
+            twitterStream.filter(languages=['en'], track=KEYWORDS)
+        except Exception, e:
+            print("Restarting Stream", str(e))
             continue
 
     #The location specified above gets all tweets, we can then filter and store based on what we want
 
-# For testing purposes only
-'''
-if __name__ == '__main__':
-    while True:
-        try:
-            startStream()
-        except:
-            print("Print restart")
-            continue
-'''

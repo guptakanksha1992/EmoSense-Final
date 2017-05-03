@@ -1,13 +1,16 @@
 import json
 from NewsHandler import NewsHandler
 from ElasticSearchServices import ElasticSearchServices
-import random
+import random,operator
+import ConfigParser
 #----------------------------------
 # For sending News Requests
 import requests
 
 f = open("API_KEY.txt")
 api_key = f.read()
+config = ConfigParser.ConfigParser()
+config.readfp(open(r'./configurations.txt'))
 #----------------------------------
 # Sentiment Analysis
 import re
@@ -50,6 +53,9 @@ collection = {
                 "sentiment": {
                     "type": "string"
                 },
+                "dominant_emotion": {
+                    "type": "string"
+                },
                 "anger": {
                     "type": "float"
                 },
@@ -88,24 +94,23 @@ def clean(text):
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", text).split())
 
 def sentimentAnalysis(text):
-    # sentiment analysis - watson username and password
-    wusername = '3389e807-52e0-40bd-b35c-39ca9c2b8836'
-    wpassword = 'myUPGrOO2FqC'
+    Username = config.get('Watson Credentials', 'Username')
+    Password = config.get('Watson Credentials', 'Password')
 
     natural_language_understanding = NaturalLanguageUnderstandingV1(
         version='2017-02-27',
-        username=wusername,
-        password=wpassword)
+        username=Username,
+        password=Password)
 
-    
+
     response = natural_language_understanding.analyze(
         text=text,
         features=[features.Emotion(), features.Sentiment()])
-    
+
     emotion_dict = response['emotion']['document']['emotion']
     overall_sentiment = response['sentiment']['document']['label']
 
-    return overall_sentiment, emotion_dict   
+    return overall_sentiment, emotion_dict
 
 def fetchArticles():
     news_handler = NewsHandler()
@@ -143,15 +148,26 @@ def fetchArticles():
                 cleaned_title = clean(title)
 
                 # Sentiment analysis on title
-                sentimentRating, allemotions = sentimentAnalysis(cleaned_title)
+                sentiment, allemotions = sentimentAnalysis(cleaned_title)
                 anger=allemotions['anger']
                 joy=allemotions['joy']
                 sadness=allemotions['sadness']
                 fear=allemotions['fear']
                 disgust=allemotions['disgust']
+                dominant_emotion = find_dominant_emotion(anger, joy, sadness, fear, disgust)
 
                 # Inserting News Article to Storage
-                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentimentRating,anger, joy, sadness, fear, disgust ))
+                print(news_handler.insertNews(title, author, url, url2image, source, timestamp, location_data, sentiment, dominant_emotion, anger, joy, sadness, fear, disgust))
+
+def find_dominant_emotion(anger, joy, sadness, fear, disgust):
+    emo_dictionary = {}
+    emo_dictionary["anger"] = anger
+    emo_dictionary["joy"] = joy
+    emo_dictionary["sadness"] = sadness
+    emo_dictionary["fear"] = fear
+    emo_dictionary["disgust"] = disgust
+
+    return max(emo_dictionary.iteritems(), key=operator.itemgetter(1))[0]
 
 def startFetch():
         try:
