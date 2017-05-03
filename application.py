@@ -26,7 +26,7 @@ from news.NewsListener import *
 
 # function that pulls tweets from twitter
 def startTwitterRequests():
-    print 'Fetching tweets started at ', str(time.ctime(time.time()))
+    print ('Fetching tweets started at ', str(time.ctime(time.time())))
     startStream()
 
 # EB looks for an 'application' callable by default.
@@ -122,11 +122,12 @@ def sentiment_mapper():
     value_sadness = value_sadness + result['sadness']
     EMOVALUE.append(value_sadness)
 
-
+    max_emotion = max(EMOVALUE)
+    print ('This is the max emotion' + max_emotion)
     # NACHIKET: INSERT CODE HERE
 
     # By this point variable max_emotion should be available
-    max_emotion="anger"
+    # max_emotion="anger"
     # Code to fetch news from ES based on max_emotion
 
     # AKHILESH AND AKANKSHA: insert code here- we have time-tstart, tend, location-latitude and longitude and max emotion.
@@ -151,7 +152,7 @@ def handle_json(json):
 def snsFunction():
     try:
         # Notification received from SNS
-        print 'Notification received from SNS'
+        print ('Notification received from SNS')
         if (len(request.data)):
             notification = json.loads(request.data)
         else:
@@ -167,13 +168,13 @@ def snsFunction():
         url = requests.get(notification['SubscribeURL'])
         # print(url)
     elif headers == 'Notification':
-        print "I am here!!"
+        print ("I am here!!")
         TweetPersister.persistTweet(notification)
         socketio.emit('first', {'notification': 'New Tweet!'})
     else:
         # print 'Value of headers', headers
         print("Headers not specified")
-    return 'End point was accessed!'
+    return ('End point was accessed!')
 
 
 # run the app.
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
     #thread.start_new_thread(startTwitterRequests, ())
-    print 'Running application.py'
+    print ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
     twitter_thread = threading.Thread(target=startTwitterRequests)
