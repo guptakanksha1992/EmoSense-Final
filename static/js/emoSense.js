@@ -171,19 +171,36 @@ function get_type(thing){
     return Object.prototype.toString.call(thing);
 }
 
+// Function to clear the News Articles carousal
+function clear_news(){
+	for (var i = 0; i < 6; i++) {
+
+		//Changing the title
+		document.getElementById("title-" + String(i + 1)).innerHTML = "";
+
+		//Changing the Link
+		document.getElementById("link-" + String(i + 1)).href="";
+
+		//Changing the Image
+		document.getElementById("img-" + String(i + 1)).src = "";
+		
+	}
+}
+
 // Function to Load news variables and place them on the Carousal
 function load_news(list) {
 	var object_list = list.hits.hits; 
 	console.log(JSON.stringify(object_list));
 	for (var i = 0; i < object_list.length; i++) {
 
-		// Populate the values of the graph here
-		curr_latitude = object_list[i]._source.location[1];
-		curr_longitude = object_list[i]._source.location[0];
+		//Changing the title
+		document.getElementById("title-" + String(i + 1)).innerHTML = object_list[i]._source.title;
 
-		//Check if the following variable is correct or not (most probably will require dominant emotion)
-		object_list[i]._source.img_source = image_emotion_mapper(object_list[i]._source.emotion);
+		//Changing the Link
+		document.getElementById("link-" + String(i + 1)).href=object_list[i]._source.url;
 
+		//Changing the Image
+		document.getElementById("img-" + String(i + 1)).src = object_list[i]._source.url2image;
 		
 	}
 
@@ -191,6 +208,7 @@ function load_news(list) {
 
 function search_by_geo_distance(latitude, longitude) {
 	clearMarkers();
+	clear_news();
 	console.log('In search_by_geo_distance function');
 	console.log('selected_keyword global variable\'s value:', selected_keyword);
 	var selected_key = selected_keyword;
@@ -234,8 +252,7 @@ function search_by_geo_distance(latitude, longitude) {
     	url: '/news' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
     	type: 'GET',
     	success: function(response) {
-    		console.log(JSON.stringify(response));
-    		//load_news(response);
+    		load_news(response);
     	},
     	error: function(error) {
     		console.log(JSON.stringify(error));
@@ -603,5 +620,14 @@ $(document).ready(function(){
 
 	}, false);
 
+	document.getElementById('keyword_select_form').addEventListener('submit', function (e) {
+		e.preventDefault();
+		clearMarkers();
+		var form = document.getElementById("keyword_select_form");
+		selected_keyword = form.elements['search_keyword'].value
+		console.log('Keyword selected:', selected_keyword);
+		search_by_keyword(selected_keyword);
 
+	}, false);
+	
 });
