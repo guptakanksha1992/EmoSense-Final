@@ -92,11 +92,11 @@ class TweetListener(StreamListener):
     def on_data(self, data):
         try:
             parse_data(data)
-        except Exception, e:
+        except Exception as e:
             print("Parsing Error " + str(e))
         try:
             elastic_worker_sentiment_analysis()
-        except Exception, e:
+        except Exception as e:
             print("Elastic work sentiment Error " + str(e))
 
         return (True)
@@ -122,9 +122,9 @@ def formatTweet(id, location_data, tweet, author, timestamp):
 def parse_data(data):
     try:
         json_data_file = json.loads(data)
-    except Exception, e:
-        print 'Parsing failed'
-        print str(e)
+    except Exception as e:
+        print ('Parsing failed')
+        print (str(e))
     # Could be that json.loads has failed
 
     # print 'JSON DATA FILE:', json_data_file
@@ -132,9 +132,9 @@ def parse_data(data):
     try:
         location = json_data_file["place"]
         coordinates = json_data_file["coordinates"]
-    except Exception, e:
-        print 'Location data parsing erroneous'
-        print str(e)
+    except Exception as e:
+        print ('Location data parsing erroneous')
+        print (str(e))
 
     # Setting location of the tweet
 
@@ -153,7 +153,7 @@ def parse_data(data):
     else:
         # Insert code for random final_longitude, final_latitude here
         return
-        
+
     tweetId = json_data_file['id_str']
     tweet = json_data_file["text"]
     author = json_data_file["user"]["name"]
@@ -170,9 +170,9 @@ def parse_data(data):
         # print 'Trying to publish to Queue the tweet', tweet
         publishToQueue(tweet)
 
-    except Exception, e:
+    except Exception as e:
         print("Failed to insert tweet into SQS")
-        print str(e)
+        #print str(e)
 
 def publishToQueue(tweet):
     try:
@@ -180,20 +180,20 @@ def publishToQueue(tweet):
         # Establishing Connection to SQS
         conn = boto.sqs.connect_to_region("us-east-1", aws_access_key_id=aws_api_key,
                                           aws_secret_access_key=aws_secret)
-        print "Connected to SQS!!"
+        #print "Connected to SQS!!"
         # print "Tweet is :", tweet
         # print "All queues:", conn.get_all_queues()
         # q = conn.create_queue('Trial2')
         q = conn.get_queue('EmoSense_Queue')  # Connecting to the SQS Queue named tweet_queue
-        print "Connected to queue!!"
+        #print "Connected to queue!!"
         m = Message()  # Creating a message Object
 
         m.set_body(tweet)
         q.write(m)
         #  print 'Added to Queue'
-    except Exception, e:
-        print 'Failed to publish to Queue'
-        print str(e)
+    except Exception as e:
+        print ('Failed to publish to Queue')
+        print (str(e))
 
 def elastic_worker_sentiment_analysis():
     # This method acts as an Elastic BeanStalk worker
@@ -216,7 +216,7 @@ def elastic_worker_sentiment_analysis():
         tweet = m.get_body()
 
         sentiment, anger, joy, sadness, fear, disgust = tweet_sentiment_analysis(tweet)
-        print "Before SNS: ", tweet
+        print ("Before SNS: ", tweet)
 
 
         # SNS Connection
@@ -235,12 +235,12 @@ def elastic_worker_sentiment_analysis():
         message_json['sadness'] = sadness
         message_json['fear'] = fear
         message_json['disgust'] = disgust
-        print "Before SNS: ", message_json
+        print ("Before SNS: ", message_json)
         # Publishing to SNS
         conn.publish(topic=topic, message=json.dumps(message_json), message_structure=json)
-        print "Published to SNS"
-    except Exception, e:
-        print 'Exception ' + str(e)
+        print ("Published to SNS")
+    except Exception as e:
+        print ('Exception ' + str(e))
 
 
 def startStream():
@@ -250,9 +250,8 @@ def startStream():
         try:
             twitterStream = Stream(auth, TweetListener())
             twitterStream.filter(languages=['en'], track=KEYWORDS)
-        except Exception, e:
+        except Exception as e:
             print("Restarting Stream", str(e))
             continue
 
     #The location specified above gets all tweets, we can then filter and store based on what we want
-
