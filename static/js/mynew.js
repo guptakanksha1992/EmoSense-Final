@@ -13,6 +13,35 @@ function initMap() {
 
 }
 
+// function GdeltView(timestamp, latitude, longitude) { //on click of GDELT button
+// $.ajax({
+//
+//         url: 'https://r158gk0xqk.execute-api.us-east-1.amazonaws.com/prod/GDELT_query',
+//         type: "POST",
+// formData: {"timestamp": timestamp,
+// "location": [
+//                   latitude,
+//                   longitude
+//                ] },      
+// data: JSON.stringify(formData),
+//         success: function(data) {
+//           var info = {
+//     // plot data on map
+//
+//           };
+//         },
+//
+//         error: function (data) {
+//
+//             alert("Could not load GDELT view!!");
+//
+//     	}
+//     });
+// }
+
+
+
+
 // Function to add HTML code to the Marker
 function toggleMarker(source_object) {
 	var contentString = '<div style="float:left"><img src="'+source_object.img_source+'"></div><div style="float:right; padding: 10px;"><div id="content">'+
