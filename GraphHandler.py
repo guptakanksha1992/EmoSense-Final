@@ -73,7 +73,7 @@ def graph_emotion_aggregates(keyword, latitude, longitude, start_time, end_time)
     fear_val = 0.0
 
     for result in results['hits']['hits']:
-        print result['_source']
+        #print result['_source']
         timestamp_strings = result['_source']['timestamp'].split()
         timestamp_hash =  timestamp_strings[-1]+timestamp_strings[1]+timestamp_strings[2]
 
@@ -111,5 +111,5 @@ def graph_emotion_aggregates(keyword, latitude, longitude, start_time, end_time)
     dict_array.append(disgust_dict)
     dict_array.append(fear_dict)
 
-    print dict_array
+    #print dict_array
     return dict_array

@@ -71,13 +71,7 @@ def sentiment_mapper(keyword, start_time, end_time, latitude, longitude):
     # Code to fetch tweets and find maximum emotion
         
     collated_emotions = graph_emotion_aggregates(keyword, latitude, longitude, start_time, end_time)
-    print '-------------------- '
-    print type(collated_emotions)
-    print '--------------------'
-    #print result['hits']['hits']
-    #print type(result['hits']['hits'])
-    print '--------------------'
-    #print collated_emotions
+    
     joy_list = collated_emotions[0]
     anger_list = collated_emotions[1]
     sadness_list = collated_emotions[2]
@@ -90,7 +84,6 @@ def sentiment_mapper(keyword, start_time, end_time, latitude, longitude):
     value_disgust = sum(disgust_list.values())
     value_sadness = sum(fear_list.values())
     
-    print value_angry, value_disgust, value_fear, value_joy, value_sadness
     switcher = { 
         value_angry:'anger',
         value_disgust:'disgust',
@@ -106,7 +99,7 @@ def sentiment_mapper(keyword, start_time, end_time, latitude, longitude):
     news_result = news_handler.getNewsWithDistance(latitude, longitude, start_time, end_time, max_emotion)
     print 'Output for news result'
     print news_result
-    print '----------------------------------------1'
+    print '----------------------------------------'
     return jsonify(news_result)
 
 #---- Flask SocketIO Implementation
