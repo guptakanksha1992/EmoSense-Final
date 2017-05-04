@@ -149,13 +149,13 @@ if __name__ == "__main__":
     # removed before deploying a production app.
 
     #thread.start_new_thread(startTwitterRequests, ())
-    thread.start_new_thread(fetchNewsArticles,())
-    application.debug = True
+    #thread.start_new_thread(fetchNewsArticles,())
+    #application.debug = True
     #application.run()
     print ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
-    #twitter_thread = threading.Thread(target=startTwitterRequests)
-    #twitter_thread.daemon = True
-    #twitter_thread.start()
+    twitter_thread = threading.Thread(target=startTwitterRequests)
+    twitter_thread.daemon = True
+    twitter_thread.start()
     application.run()

@@ -65,33 +65,33 @@ class NewsHandler:
 		if (type(longitude) != float):
 			longitude = float(longitude)
 
-		body = 	{
-    "query":{
-                "bool" : {
-                    "must" : [
-                        {"match":{"dominant_emotion":max_emotion}}
-                        ],
-                    "must_not":
-                        {"range": {
-                    "timestamp":{
-                        "gte": t_end,
-                        "lte": t_start
-                    }
-                 }
-                },
-            "filter":{
-            "geo_distance" : {
-                "distance" : distance_string,
-                "location" : {
-                    "lat" : latitude,
-                    "lon" : longitude
-                }
-            }
-        }
+			body = 	{ "from":0,"size":6,
+			"query":{
+			"bool" : {
+			"must" : [
+			{"match":{"dominant_emotion":max_emotion}}
+			],
+			"must_not":
+			{"range": {
+			"timestamp":{
+			"gte": t_end,
+			"lte": t_start
+			}
+			}
+			},
+			"filter":{
+			"geo_distance" : {
+			"distance" : distance_string,
+			"location" : {
+			"lat" : latitude,
+			"lon" : longitude
+			}
+			}
+			}
 
-        }
-    }
-}
+			}
+			}
+			}
 
 		size = 10000
 		result = self.es.search(self.index, self.doc_type, body, size)
