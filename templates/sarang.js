@@ -135,6 +135,7 @@
           drop_marker(curr_latitude, curr_longitude, source_object, 1);
         }
 
+
       }
 
       function search_by_geo_distance(latitude, longitude) {

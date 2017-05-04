@@ -58,8 +58,6 @@ class TwitterHandler:
 
 		return result
 
-
-
 	def insertTweet(self, t_id, location_data, tweet, author, timestamp, sentimentRating,anger, joy, sadness, fear, disgust ):
 
 		body = {
@@ -79,4 +77,3 @@ class TwitterHandler:
 		result = self.es.store_data(self.index, self.doc_type, body)
 
 		return result
-

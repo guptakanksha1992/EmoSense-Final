@@ -1,7 +1,7 @@
 import json
 import thread
 
-#from TweetListener import *
+from TweetListener import *
 from flask import Flask, render_template, jsonify
 
 from TweetHandler import TwitterHandler
@@ -23,6 +23,10 @@ from news import NewsHandler
 from news.NewsListener import *
 #----------------------------------------
 
+# Graph Populating code
+from GraphHandler import *
+#----------------------------------------
+
 
 # function that pulls tweets from twitter
 def startTwitterRequests():
@@ -41,109 +45,65 @@ application = Flask(__name__)
 
 @application.route('/')
 def api_root():
-    return render_template('index.html')
+    # Loading initial values
+    return render_template('test.html')
     # return 'Welcome'
 
-'''
-Searches Tweets based on a Keyword
+#Searches Tweets based on a Keyword
 @application.route('/search/<keyword>')
 def searchKeyword(keyword):
     searchTweets = TwitterHandler()
     result = searchTweets.getTweets(keyword)
-    return jsonify(result)'''
+    return jsonify(result)
 
-'''
-Searches Tweets based on Keyword and Distance
+#Searches Tweets based on Keyword and Distance
 @application.route('/search/<keyword>/<distance>/<latitude>/<longitude>')
 def searchKeywordWithDistance(keyword, distance, latitude, longitude):
     searchTweets = TwitterHandler()
     result = searchTweets.getTweetsWithDistance(keyword, distance, latitude, longitude)
     return jsonify(result)
-'''
 
-@application.route('/search/mapper')
-def sentiment_mapper():
+# Graph End point
+@application.route('/graph/<keyword>/<start_time>/<end_time>/<latitude>/<longitude>')
+def populate_graph(keyword, start_time, end_time, latitude, longitude):
+    collated_emotions = graph_emotion_aggregates(keyword, latitude, longitude, start_time, end_time)
+    context = dict(collated_emotions = collated_emotions)
+    print 'Aggregated Emotions:', context
+    return jsonify(context)
 
-    # Below variable function NEEDS TO BE CHECKED !!!!!!!!!!!!!!!
-    # t_start = request.args.get('time_start')
-    # t_end = request.args.get('time_end')
-    # latitude = request.args.get('latitude')
-    # longitude = request.args.get('longitude')
-
+#Searches Tweets, extracts max emotion and outputs news
+@application.route('/news/<keyword>/<distance>/<latitude>/<longitude>')
+def sentiment_mapper(keyword, distance, latitude, longitude):
     # Code to fetch tweets and find maximum emotion
-    try:
-        print "*******************************main hoon************************************"
-    except Exception,e:
-        print str(e)
-    # value_joy = 0
-    # value_angry = 0
-    # value_fear = 0
-    # value_disgust = 0
-    # value_sadness = 0
-    # EMOVALUE=[]
-    # es = ElasticSearchServices()
-    # index = "newsdomain3"
-    # doc_type = "finaltweets2"
-    # body = {
-    # "query":{
-    #             "bool" : {
-    #                 "must" : [
-    #                     {"match":{"sentiment":"neutral"}}
-    #                     ],
-    #                 "must_not":
-    #                     {"range": {
-    #                 "timestamp":{
-    #                     "gte": "now",
-    #                     "lte": "2016"
-    #                 }
-    #              }
-    #             },
-    #         "filter":{
-    #         "geo_distance" : {
-    #             "distance" : "2000km",
-    #             "location" : {
-    #                 "lat" : 40.06889420539272,
-    #                 "lon" : -120.32554198435977
-    #             }
-    #         }
-    #     }
-    #
-    #     }
-    # }
-    # }
-    #
-    # size = 10000
-    # result = es.search(index, doc_type, body, size)
-    # print "Result:" , result
-    # value_angry = value_angry + result['angry']
-    # EMOVALUE.append(value_angry)
-    # value_disgust = value_disgust + result['disgust']
-    # EMOVALUE.append(value_disgust)
-    # value_fear = value_fear + result['fear']
-    # EMOVALUE.append(value_fear)
-    # value_joy = value_joy + result['joy']
-    # EMOVALUE.append(value_joy)
-    # value_sadness = value_sadness + result['sadness']
-    # EMOVALUE.append(value_sadness)
-    #
-    # max_emotion = max(EMOVALUE)
-    # print ('This is the max emotion' + max_emotion)
-    # # NACHIKET: INSERT CODE HERE
-    #
-    # # By this point variable max_emotion should be available
-    # # max_emotion="anger"
-    # # Code to fetch news from ES based on max_emotion
-    #
-    # # AKHILESH AND AKANKSHA: insert code here- we have time-tstart, tend, location-latitude and longitude and max emotion.
+    value_joy = 0
+    value_angry = 0
+    value_fear = 0
+    value_disgust = 0
+    value_sadness = 0
+    EMOVALUE=[]
+    
+    searchTweets = TwitterHandler()
+    result = searchTweets.getTweetsWithDistance(keyword, distance, latitude, longitude)
+    print "Result:" , result
+    value_angry = value_angry + result['angry']
+    EMOVALUE.append(value_angry)
+    value_disgust = value_disgust + result['disgust']
+    EMOVALUE.append(value_disgust)
+    value_fear = value_fear + result['fear']
+    EMOVALUE.append(value_fear)
+    value_joy = value_joy + result['joy']
+    EMOVALUE.append(value_joy)
+    value_sadness = value_sadness + result['sadness']
+    EMOVALUE.append(value_sadness)
+    
+    max_emotion = max(EMOVALUE)
+    print ('This is the max emotion' + max_emotion)
+    
     news_result=ne.NewsHandler.getNewsWithDistance(latitude, longitude, t_start, t_end, max_emotion)
+    print 'Output for news result'
+    print news_result
+    print '----------------------------------------1'
     return jsonify(news_result)
-
-# Route of ES search for free keyword search
-@application.route('/freesearch/<keyword>')
-def freesearchKeyword(keyword):
-    searchTweets = FreeSearch()
-    result = searchTweets.getKeywordSearchTweets(keyword)
-    return jsonify(result)
 
 #---- Flask SocketIO Implementation
 @socketio.on('json')
@@ -185,7 +145,11 @@ def snsFunction():
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
+
     #thread.start_new_thread(startTwitterRequests, ())
+    #thread.start_new_thread(fetchNewsArticles,())
+    #application.debug = True
+    #application.run()
     print ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True

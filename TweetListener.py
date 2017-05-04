@@ -37,6 +37,54 @@ aws_secret = config.get('AWS Keys', 'aws_secret')
 KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment']
 REQUEST_LIMIT = 420
 
+#---- Elastic Search Details -------
+
+index = "newsdomain3"
+collection = {
+	"mappings": {
+		"finaltweets2": {
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+                "source": {
+					"type": "string"
+				},
+				"message": {
+					"type": "string"
+				},
+				"author": {
+					"type": "string"
+				},
+				"timestamp": {
+					"type": "string"
+				},
+				"location": {
+					"type": "geo_point"
+				},
+                "sentiment": {
+					"type": "string"
+				},
+                "anger": {
+					"type": "float"
+				},
+                "joy": {
+					"type": "float"
+				},
+                "sadness": {
+					"type": "float"
+				},
+                "fear": {
+					"type": "float"
+				},
+                "disgust": {
+					"type": "float"
+				}
+			}
+		}
+	}
+}
+
 #--------------------------------------------------------
 
 class TweetListener(StreamListener):
@@ -104,10 +152,8 @@ def parse_data(data):
         final_latitude = latitude / len(coord_array)
     else:
         # Insert code for random final_longitude, final_latitude here
-
-        final_longitude = random.uniform(-180.0, 180.0)
-        final_latitude = random.uniform(-90.0, +90.0)
-
+        return
+        
     tweetId = json_data_file['id_str']
     tweet = json_data_file["text"]
     author = json_data_file["user"]["name"]
