@@ -72,7 +72,7 @@ def populate_graph(keyword, start_time, end_time, latitude, longitude):
     return jsonify(context)
 
 #Searches Tweets, extracts max emotion and outputs news
-@application.route('/search/news/<keyword>/<distance>/<latitude>/<longitude>')
+@application.route('/news/<keyword>/<distance>/<latitude>/<longitude>')
 def sentiment_mapper(keyword, distance, latitude, longitude):
     # Code to fetch tweets and find maximum emotion
     value_joy = 0
@@ -104,13 +104,6 @@ def sentiment_mapper(keyword, distance, latitude, longitude):
     print news_result
     print '----------------------------------------1'
     return jsonify(news_result)
-
-# Route of ES search for free keyword search
-@application.route('/freesearch/<keyword>')
-def freesearchKeyword(keyword):
-    searchTweets = FreeSearch()
-    result = searchTweets.getKeywordSearchTweets(keyword)
-    return jsonify(result)
 
 #---- Flask SocketIO Implementation
 @socketio.on('json')
