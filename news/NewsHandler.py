@@ -74,8 +74,8 @@ class NewsHandler:
                     "must_not":
                         {"range": {
                     "timestamp":{
-                        "gte": t_end,
-                        "lte": t_start
+                        "gte": t_start,
+                        "lte": t_end
                     }
                  }
                 },
