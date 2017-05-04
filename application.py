@@ -1,23 +1,17 @@
 import json
 import thread
-
-from TweetListener import *
-from flask import Flask, render_template, jsonify
-
-from TweetHandler import TwitterHandler
-from  search_in_ES import FreeSearch
+import time
+import requests
 import threading
+
+from flask import Flask, render_template, jsonify
 from flask_socketio import SocketIO, send, emit
+
 from TweetListener import *
-from flask import Flask, render_template, jsonify, request
 from TweetHandler import TwitterHandler
 import TweetPersister
-import time
-from news import NewsHandler as ne
-import requests
-
-
 #----------------------------------------
+
 # News Fetching and Handling API
 from news import NewsHandler
 from news.NewsListener import *
@@ -72,34 +66,44 @@ def populate_graph(keyword, start_time, end_time, latitude, longitude):
     return jsonify(context)
 
 #Searches Tweets, extracts max emotion and outputs news
-@application.route('/news/<keyword>/<distance>/<latitude>/<longitude>')
-def sentiment_mapper(keyword, distance, latitude, longitude):
+@application.route('/news/<keyword>/<start_time>/<end_time>/<latitude>/<longitude>')
+def sentiment_mapper(keyword, start_time, end_time, latitude, longitude):
     # Code to fetch tweets and find maximum emotion
-    value_joy = 0
-    value_angry = 0
-    value_fear = 0
-    value_disgust = 0
-    value_sadness = 0
-    EMOVALUE=[]
+        
+    collated_emotions = graph_emotion_aggregates(keyword, latitude, longitude, start_time, end_time)
+    print '-------------------- '
+    print type(collated_emotions)
+    print '--------------------'
+    #print result['hits']['hits']
+    #print type(result['hits']['hits'])
+    print '--------------------'
+    #print collated_emotions
+    joy_list = collated_emotions[0]
+    anger_list = collated_emotions[1]
+    sadness_list = collated_emotions[2]
+    disgust_list = collated_emotions[3]
+    fear_list = collated_emotions[4]
+        
+    value_joy = sum(joy_list.values())
+    value_angry = sum(anger_list.values())
+    value_fear = sum(sadness_list.values())
+    value_disgust = sum(disgust_list.values())
+    value_sadness = sum(fear_list.values())
     
-    searchTweets = TwitterHandler()
-    result = searchTweets.getTweetsWithDistance(keyword, distance, latitude, longitude)
-    print "Result:" , result
-    value_angry = value_angry + result['angry']
-    EMOVALUE.append(value_angry)
-    value_disgust = value_disgust + result['disgust']
-    EMOVALUE.append(value_disgust)
-    value_fear = value_fear + result['fear']
-    EMOVALUE.append(value_fear)
-    value_joy = value_joy + result['joy']
-    EMOVALUE.append(value_joy)
-    value_sadness = value_sadness + result['sadness']
-    EMOVALUE.append(value_sadness)
-    
-    max_emotion = max(EMOVALUE)
-    print ('This is the max emotion' + max_emotion)
-    
-    news_result=ne.NewsHandler.getNewsWithDistance(latitude, longitude, t_start, t_end, max_emotion)
+    print value_angry, value_disgust, value_fear, value_joy, value_sadness
+    switcher = { 
+        value_angry:'anger',
+        value_disgust:'disgust',
+        value_fear:'fear',
+        value_joy:'joy',
+        value_sadness:'sadness'
+        }    
+
+    max_emotion = switcher.get(max(value_angry, value_disgust, value_fear, value_joy, value_sadness),'default')
+    print ('This is the max emotion', max_emotion)
+
+    news_handler = NewsHandler()
+    news_result = news_handler.getNewsWithDistance(latitude, longitude, start_time, end_time, max_emotion)
     print 'Output for news result'
     print news_result
     print '----------------------------------------1'
@@ -122,10 +126,10 @@ def snsFunction():
         else:
             notification = request.form['hello']
     except:
-        print("Unable to load request")
-        pass
+            print("Unable to load request")
+            pass
 
-    headers = request.headers.get('X-Amz-Sns-Message-Type')
+            headers = request.headers.get('X-Amz-Sns-Message-Type')
     # print(notification)
 
     if headers == 'SubscriptionConfirmation' and 'SubscribeURL' in notification:
@@ -138,7 +142,7 @@ def snsFunction():
     else:
         # print 'Value of headers', headers
         print("Headers not specified")
-    return ('End point was accessed!')
+        return ('End point was accessed!')
 
 
 # run the app.
@@ -148,12 +152,12 @@ if __name__ == "__main__":
 
     #thread.start_new_thread(startTwitterRequests, ())
     #thread.start_new_thread(fetchNewsArticles,())
-    #application.debug = True
+    application.debug = True
     #application.run()
     print ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
-    twitter_thread = threading.Thread(target=startTwitterRequests)
-    twitter_thread.daemon = True
-    twitter_thread.start()
+    #twitter_thread = threading.Thread(target=startTwitterRequests)
+    #twitter_thread.daemon = True
+    #twitter_thread.start()
     application.run()

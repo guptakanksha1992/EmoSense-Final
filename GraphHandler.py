@@ -8,8 +8,8 @@ from flask import Flask, render_template, jsonify, request
 config = ConfigParser.ConfigParser()
 config.readfp(open(r'./configurations.txt'))
 
-HOST = config.get('ES Instance', 'HOST')
-PORT = config.get('ES Instance', 'PORT')
+HOST = config.get('ES Instance', 'elastic_search_host_address')
+PORT = config.get('ES Instance', 'Port')
 
 size = 100
 
