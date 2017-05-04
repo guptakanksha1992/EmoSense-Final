@@ -1,7 +1,7 @@
 import json
 import thread
 
-#from TweetListener import *
+from TweetListener import *
 from flask import Flask, render_template, jsonify
 
 from TweetHandler import TwitterHandler
@@ -23,6 +23,10 @@ from news import NewsHandler
 from news.NewsListener import *
 #----------------------------------------
 
+# Graph Populating code
+from GraphHandler import *
+#----------------------------------------
+
 
 # function that pulls tweets from twitter
 def startTwitterRequests():
@@ -41,7 +45,8 @@ application = Flask(__name__)
 
 @application.route('/')
 def api_root():
-    return render_template('index.html')
+    # Loading initial values
+    return render_template('test.html')
     # return 'Welcome'
 
 #Searches Tweets based on a Keyword
@@ -57,6 +62,14 @@ def searchKeywordWithDistance(keyword, distance, latitude, longitude):
     searchTweets = TwitterHandler()
     result = searchTweets.getTweetsWithDistance(keyword, distance, latitude, longitude)
     return jsonify(result)
+
+# Graph End point
+@application.route('/graph/<keyword>/<start_time>/<end_time>/<latitude>/<longitude>')
+def populate_graph(keyword, start_time, end_time, latitude, longitude):
+    collated_emotions = graph_emotion_aggregates(keyword, latitude, longitude, start_time, end_time)
+    context = dict(collated_emotions = collated_emotions)
+    print 'Aggregated Emotions:', context
+    return jsonify(context)
 
 #Searches Tweets, extracts max emotion and outputs news
 @application.route('/search/news/<keyword>/<distance>/<latitude>/<longitude>')
@@ -139,7 +152,11 @@ def snsFunction():
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
+
     #thread.start_new_thread(startTwitterRequests, ())
+    #thread.start_new_thread(fetchNewsArticles,())
+    #application.debug = True
+    #application.run()
     print ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
