@@ -16,18 +16,22 @@ function initMap() {
 function GdeltView(timestamp, latitude, longitude) { //on click of GDELT button
 $.ajax({
 
-        url: 'https://r158gk0xqk.execute-api.us-east-1.amazonaws.com/prod/GDELT_query',
+        url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
         type: "POST",
-formData: {"timestamp": timestamp,
-"location": [
+				formData: {"timestamp": timestamp,
+				"location": [
                   latitude,
                   longitude
                ] },      
-data: JSON.stringify(formData),
+				data: JSON.stringify(formData),
+				contentType: "application/json; charset=utf-8",
         success: function(data) {
-          var info = {
+				data = JSON_stringify(data, true);
+				data = JSON.parse(data);
+				console.log("data");
+				console.log(data);
+				console.log("success");
     // plot data on map
-
           };
         },
 
