@@ -16,13 +16,30 @@ function initMap() {
 function GdeltView(timestamp, latitude, longitude) { //on click of GDELT button
 $.ajax({
 
+		// CODE FOR JAVASCRIPT ---NACHIKET
+
+		/*$.ajax({
+		url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+		type: 'GET',
+		success: function(response) {
+			console.log('In the AJAX Call')
+			//console.log(JSON.stringify(response));
+    		graph_query_response = response;
+    		graphQueryProcessor(graph_query_response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });*/
+
         url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
         type: "POST",
-				formData: {"timestamp": timestamp,
-				"location": [
-                  latitude,
-                  longitude
-               ] },      
+        formData: {"timestamp": timestamp,
+        "location": [
+                          latitude,
+                          longitude
+                       ] },      
 				data: JSON.stringify(formData),
 				contentType: "application/json; charset=utf-8",
         success: function(data) {
