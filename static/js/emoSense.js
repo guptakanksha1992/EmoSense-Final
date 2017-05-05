@@ -422,6 +422,7 @@ function graphRenderer(data_series, data_series2, data_series3, data_series4, da
             	name: 'Angry',
             	lineWidth: 4,
             	marker: {
+            	marker: {
             		radius: 4
             	}
             }, {

@@ -40,7 +40,7 @@ application = Flask(__name__)
 @application.route('/newroute')
 def GDELT_root():
     # Loading initial values
-    return render_template('GDELT_index.html')
+    return render_template('MapTest.html')
 
 @application.route('/')
 def api_root():
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     # removed before deploying a production app.
 
     #thread.start_new_thread(startTwitterRequests, ())
-    #thread.start_new_thread(fetchNewsArticles,())
+    thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
     #application.run()
     print ('Running application.py')
