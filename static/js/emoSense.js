@@ -206,11 +206,14 @@ function load_news(list) {
 	}else {
 		while(processed_object_list.length < 6){
 			i = Math.floor((Math.random() * object_list.length) + 0);
+			/*	if(titles_selected.indexOf(object_list[i]._source.title) <= -1){
 				console.log('Adding to processed_object_list')
 				processed_object_list.push(object_list[i]);
 				titles_selected.push(object_list[i]._source.title);
 				console.log('Title list untill now');
 				console.log(titles_selected);
+			}*/
+			processed_object_list.push(object_list[i]);
 		}
 	}
 
