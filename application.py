@@ -125,12 +125,17 @@ def snsFunction():
         else:
             notification = request.form['hello']
     except:
-            print("Unable to load request")
-            pass
+        print("Unable to load request")
+        pass
 
     headers = request.headers.get('X-Amz-Sns-Message-Type')
+
+
     print 'Headers is', headers
     print '**************************************'
+
+
+
     # print(notification)
 
     if headers == 'SubscriptionConfirmation' and 'SubscribeURL' in notification:
