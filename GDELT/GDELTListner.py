@@ -1,4 +1,3 @@
-# import ConfigParser
 from bigquery.client import get_client
 
 def fetchGDELT(timestamp, latitude, longitude):
@@ -47,9 +46,15 @@ def fetchGDELT(timestamp, latitude, longitude):
 
 
 
-def startGDELTFetch(1979-01-23T06:59:58Z, 18.23733106276245, 79.54300905036112):
-    try:
-        print 'Fetching GDELT Data!'
-        fetchGDELT("1979-01-23T06:59:58Z", 18.23733106276245, 79.54300905036112)
-    except Exception, e:
-        print("Exception in fetching GDELT Data:" + str(e))
+# def startGDELTFetch():
+#     try:
+#         print 'Fetching GDELT Data!'
+#         fetchGDELT("1979-01-23T06:59:58Z", 18.23733106276245, 79.54300905036112)
+#     except Exception, e:
+#         print("Exception in fetching GDELT Data:" + str(e))
+
+try:
+    print 'Fetching GDELT Data!'
+    fetchGDELT("1979-01-23T06:59:58Z", 18.23733106276245, 79.54300905036112)
+except Exception, e:
+    print("Exception in fetching GDELT Data:" + str(e))

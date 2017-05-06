@@ -13,55 +13,6 @@ function initMap() {
 
 }
 
-
-
-function GdeltView(timestamp, latitude, longitude) {
-	var formData = {"timestamp": timestamp,
-						"location": [
-	                  latitude,
-	                  longitude
-	               ] } //on click of GDELT button
-$.ajax({
-
-		// CODE FOR JAVASCRIPT ---NACHIKET
-
-		/*$.ajax({
-		url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-		type: 'GET',
-		success: function(response) {
-			console.log('In the AJAX Call')
-			//console.log(JSON.stringify(response));
-    		graph_query_response = response;
-    		graphQueryProcessor(graph_query_response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });*/
-
-        url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
-        type: "POST",
-              
-				data: JSON.stringify(formData),
-				contentType: "application/json; charset=utf-8",
-        success: function(data) {
-				data = JSON.parse(data);
-				console.log("data");
-				console.log(data);
-				console.log("success");
-    // plot data on map
-          };
-        },
-
-        error: function (data) {
-
-            alert("Could not load GDELT view!!");
-
-    	}
-    });
-}
-
 // Function to add HTML code to the Marker
 function toggleMarker(source_object) {
 	var contentString = '<div style="float:left"><img src="'+source_object.img_source+'"></div><div style="float:right; padding: 10px;"><div id="content">'+
@@ -356,6 +307,238 @@ var infowindow = '';
 var min_zoom_level = 2;
 var selected_keyword, data_series, graph_query_response;
 
+// Function for rendering a graph
+function graphRenderer(data_series, data_series2, data_series3, data_series4, data_series5){
+
+	Highcharts.chart('graph', {
+
+		title: {
+			text: 'Emotion Values'
+		},
+
+		xAxis: {
+			tickInterval: 7 * 24 * 3600 * 1000, // one week
+            tickWidth: 0,
+            gridLineWidth: 1,
+			type: 'datetime',
+			dateTimeLabelFormats: {
+	           day: '%Y %b %d'    //ex- 01 Jan 2016
+	       },
+
+	       gridLineWidth: 1,
+	       title: {
+	       	text: 'Days'
+	       },
+	       labels: {
+	       	align: 'left',
+	       	x: 3,
+	       	y: -3
+	       }
+	   },
+
+        yAxis: [{ // left y axis
+        	title: {
+        		text: 'Score'
+        	},
+        	labels: {
+        		align: 'left',
+        		x: 3,
+        		y: 16,
+        		format: '{value:.,0f}'
+        	},
+        	showFirstLabel: false
+        }, { // right y axis
+        	linkedTo: 0,
+        	gridLineWidth: 0,
+        	opposite: true,
+        	title: {
+        		text: null
+        	},
+        	labels: {
+        		align: 'right',
+        		x: -3,
+        		y: 16,
+        		format: '{value:.,0f}'
+        	},
+        	showFirstLabel: false
+        }],
+
+        legend: {
+        	align: 'center',
+        	verticalAlign: 'top',
+        	y: 20,
+        	floating: true,
+        	borderWidth: 0
+        },
+
+        tooltip: {
+        		// Pointer basically spans all the values of a given day
+        		shared: true,
+        		crosshairs: true
+        	},
+
+        	plotOptions: {
+        		series: {
+        			cursor: 'pointer',
+        			point: {
+        				events: {
+                    		// Event to understand what happens when a point is clicked
+                    		click: function (e) {
+                    			hs.htmlExpand(null, {
+                    				pageOrigin: {
+                    					x: e.pageX || e.clientX,
+                    					y: e.pageY || e.clientY
+                    				},
+                    				headingText: this.series.name,
+                    				maincontentText: Highcharts.dateFormat('%A, %b %e, %Y', this.x) + ':<br/> ' + 'Score:' +
+                    				this.y,
+                    				width: 200
+                    			});
+                    		}
+                    	}
+                    },
+                    marker: {
+                    	lineWidth: 1
+                    }
+                }
+            },
+
+            series: [{
+            	data: data_series,
+            	name: 'Joy',
+            	lineWidth: 4,
+            	marker: {
+            		radius: 4
+            	}
+            }, {
+            	data: data_series2,
+            	name: 'Sad',
+            	lineWidth: 4,
+            	marker: {
+            		radius: 4
+            	}
+            }, {
+            	data: data_series3,
+            	name: 'Angry',
+            	lineWidth: 4,
+            	marker: {
+            		radius: 4
+            	}
+            }, {
+            	data: data_series4,
+            	name: 'Disgust',
+            	lineWidth: 4,
+            	marker: {
+            		radius: 4
+            	}
+            }, {
+            	data: data_series5,
+            	name: 'Fear',
+            	lineWidth: 4,
+            	marker: {
+            		radius: 4
+            	}
+            }
+            ]
+        });
+
+
+}
+
+// Function to map the months to an integer value
+function month_mapper(month_word){
+	switch(month_word){
+		case 'Jan': return 1;
+		case 'Feb': return 2;
+		case 'Mar': return 3;
+		case 'Apr': return 4;
+		case 'May': return 5;
+		case 'Jun': return 6;
+		case 'Jul': return 7;
+		case 'Aug': return 8;
+		case 'Sep': return 9;
+		case 'Oct': return 10;
+		case 'Nov': return 11;
+		case 'Dec': return 12;
+	}
+}
+
+// Function for processing a Graph Query Response
+function graphQueryProcessor(graph_query_response){
+
+	// Order: Joy, Anger, Sadness, disgust, Fear Series
+
+	console.log('First data series', graph_query_response['collated_emotions'][0]);
+
+	var joy_series = [];
+	for (x in graph_query_response['collated_emotions'][0]){
+		year = parseInt(x.substring(0,4));
+		day = parseInt(x.slice(-2));
+		var monthReg = /(\D)+/;
+		month_word = x.match(monthReg)[0];
+		month = month_mapper(month_word);
+		value = (graph_query_response['collated_emotions'][0][x]);
+		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		joy_series.push([Date.UTC(year,month - 1,day),value])
+
+	}
+
+	var anger_series = [];
+	for (x in graph_query_response['collated_emotions'][1]){
+		year = parseInt(x.substring(0,4));
+		day = parseInt(x.slice(-2));
+		var monthReg = /(\D)+/;
+		month_word = x.match(monthReg)[0];
+		month = month_mapper(month_word);
+		value = (graph_query_response['collated_emotions'][1][x]);
+		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		anger_series.push([Date.UTC(year,month - 1,day),value])
+
+	}
+
+	var sadness_series = [];
+	for (x in graph_query_response['collated_emotions'][2]){
+		year = parseInt(x.substring(0,4));
+		day = parseInt(x.slice(-2));
+		var monthReg = /(\D)+/;
+		month_word = x.match(monthReg)[0];
+		month = month_mapper(month_word);
+		value = (graph_query_response['collated_emotions'][2][x]);
+		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		sadness_series.push([Date.UTC(year,month - 1,day),value])
+
+	}
+
+	var disgust_series = [];
+	for (x in graph_query_response['collated_emotions'][3]){
+		year = parseInt(x.substring(0,4));
+		day = parseInt(x.slice(-2));
+		var monthReg = /(\D)+/;
+		month_word = x.match(monthReg)[0];
+		month = month_mapper(month_word);
+		value = (graph_query_response['collated_emotions'][3][x]);
+		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		disgust_series.push([Date.UTC(year,month - 1,day),value])
+
+	}
+
+
+	var fear_series = [];
+	for (x in graph_query_response['collated_emotions'][4]){
+		year = parseInt(x.substring(0,4));
+		day = parseInt(x.slice(-2));
+		var monthReg = /(\D)+/;
+		month_word = x.match(monthReg)[0];
+		month = month_mapper(month_word);
+		value = (graph_query_response['collated_emotions'][4][x]);
+		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		fear_series.push([Date.UTC(year,month - 1,day),value])
+
+	}
+
+	graphRenderer(joy_series, sadness_series, anger_series, disgust_series, fear_series);
+
+}
 
 $(document).ready(function(){
 
@@ -365,9 +548,6 @@ $(document).ready(function(){
 	default_end_time = 2018;
 	latitude = 40.06889420539272;
 	longitude = -120.32554198435977;
-	GdeltView();
-
-
 	selected_keyword = 'sports';
 	console.log('selected_keyword value:', selected_keyword);
 
@@ -398,6 +578,7 @@ $(document).ready(function(){
 	console.log(a);
 
 	// Adding Listeners for the buttons
+<<<<<<< HEAD
     //send the location in the
 	document.getElementById('gdeltbutton').addEventListener('click', function (e) {
 		e.preventDefault();
@@ -407,10 +588,12 @@ $(document).ready(function(){
 		GdeltView(executed)
 // Call to lambda endpoint
 
+=======
+>>>>>>> f27d3dc99f6f5a0894f1e7035b4750793faa2b50
 
-	})
 
 
+<<<<<<< HEAD
 
 }
 
@@ -423,3 +606,6 @@ document.getElementById('entertainment').addEventListener('click', function (e) 
 	search_by_keyword(selected_keyword);
 
 }, false);
+=======
+});
+>>>>>>> f27d3dc99f6f5a0894f1e7035b4750793faa2b50
