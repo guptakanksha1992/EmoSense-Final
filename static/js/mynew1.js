@@ -13,54 +13,57 @@ function initMap() {
 
 }
 
+// function GdeltView(timestamp, latitude, longitude) {
+// 	var formData = {"timestamp": timestamp,
+// 						"location": [
+// 	                  latitude,
+// 	                  longitude
+// 	               ] } //on click of GDELT button
+// $.ajax({
+//
+// 		// CODE FOR JAVASCRIPT ---NACHIKET
+//
+// 		/*$.ajax({
+// 		url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+// 		type: 'GET',
+// 		success: function(response) {
+// 			console.log('In the AJAX Call')
+// 			//console.log(JSON.stringify(response));
+//     		graph_query_response = response;
+//     		graphQueryProcessor(graph_query_response);
+//     	},
+//     	error: function(error) {
+//     		console.log(JSON.stringify(error));
+//     		$('#testing').text(JSON.stringify(error));
+//     	}
+//     });*/
+//
+//         url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
+//         type: "POST",
+//               
+// 				data: JSON.stringify(formData),
+// 				contentType: "application/json; charset=utf-8",
+//         success: function(data) {
+// 				data = JSON.parse(data);
+// 				console.log("data");
+// 				console.log(data);
+// 				console.log("success");
+//     // plot data on map
+//           };
+//         },
+//
+//         error: function (data) {
+//
+//             alert("Could not load GDELT view!!");
+//
+//     	}
+//     });
+// }
 
 
-function GdeltView(timestamp, latitude, longitude) {
-	var formData = {"timestamp": timestamp,
-						"location": [
-	                  latitude,
-	                  longitude
-	               ] } //on click of GDELT button
-$.ajax({
 
-		// CODE FOR JAVASCRIPT ---NACHIKET
 
-		/*$.ajax({
-		url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-		type: 'GET',
-		success: function(response) {
-			console.log('In the AJAX Call')
-			//console.log(JSON.stringify(response));
-    		graph_query_response = response;
-    		graphQueryProcessor(graph_query_response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });*/
 
-        url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
-        type: "POST",
-              
-				data: JSON.stringify(formData),
-				contentType: "application/json; charset=utf-8",
-        success: function(data) {
-				data = JSON.parse(data);
-				console.log("data");
-				console.log(data);
-				console.log("success");
-    // plot data on map
-          };
-        },
-
-        error: function (data) {
-
-            alert("Could not load GDELT view!!");
-
-    	}
-    });
-}
 
 // Function to add HTML code to the Marker
 function toggleMarker(source_object) {
@@ -120,53 +123,6 @@ function drop_marker(latitude, longitude, source_object, color) {
 
 }
 
-function image_emotion_mapper(emotion)
-{
-	switch(emotion){
-		case "happy": return '/static/images/happy.png';
-		break;
-		case "sad": return '/static/images/sad.png';
-		break;
-		case "angry": return '/static/images/angry.png';
-		break;
-		case "disgust": return '/static/images/disgust.png';
-		break;
-		case "fear": return '/static/images/fear.png';
-		break;
-		default: return '/static/images/neutral.png';
-
-	}
-}
-
-// Function to calculate the dominant emotion for a tweet
-function max_emotion(object){
-	//console.log(object);
-
-	var happy_value, sad_value, angry_value, disgust_value, fear_value;
-
-	happy_value = object.joy;
-	sad_value = object.sadness;
-	angry_value = object.anger;
-	disgust_value = object.disgust;
-	fear_value = object.fear;
-
-	console.log('Emotion variables',happy_value, sad_value, angry_value, disgust_value, fear_value);
-	switch(Math.max(happy_value, sad_value, angry_value, disgust_value, fear_value)){
-		case happy_value: return 'happy';
-		break;
-		case sad_value: return 'sad';
-		break;
-		case angry_value: return 'angry';
-		break;
-		case disgust_value: return 'disgust';
-		break;
-		case fear_value: return 'fear';
-		break;
-		default: return 'no max value';
-		break;
-	}
-
-}
 
 // Function to Load tweets and place them on the map
 function load_tweet(list) {
@@ -220,40 +176,6 @@ function get_type(thing){
     return Object.prototype.toString.call(thing);
 }
 
-// Function to clear the News Articles carousal
-function clear_news(){
-	for (var i = 0; i < 6; i++) {
-
-		//Changing the title
-		document.getElementById("title-" + String(i + 1)).innerHTML = "";
-
-		//Changing the Link
-		document.getElementById("link-" + String(i + 1)).href="";
-
-		//Changing the Image
-		document.getElementById("img-" + String(i + 1)).src = "";
-
-	}
-}
-
-// Function to Load news variables and place them on the Carousal
-function load_news(list) {
-	var object_list = list.hits.hits;
-	console.log(JSON.stringify(object_list));
-	for (var i = 0; i < object_list.length; i++) {
-
-		//Changing the title
-		document.getElementById("title-" + String(i + 1)).innerHTML = object_list[i]._source.title;
-
-		//Changing the Link
-		document.getElementById("link-" + String(i + 1)).href=object_list[i]._source.url;
-
-		//Changing the Image
-		document.getElementById("img-" + String(i + 1)).src = object_list[i]._source.url2image;
-
-	}
-
-}
 
 function search_by_geo_distance(latitude, longitude) {
 	clearMarkers();
@@ -365,9 +287,6 @@ $(document).ready(function(){
 	default_end_time = 2018;
 	latitude = 40.06889420539272;
 	longitude = -120.32554198435977;
-	GdeltView();
-
-
 	selected_keyword = 'sports';
 	console.log('selected_keyword value:', selected_keyword);
 
@@ -397,29 +316,10 @@ $(document).ready(function(){
 
 	console.log(a);
 
+
+
 	// Adding Listeners for the buttons
-    //send the location in the
-	document.getElementById('gdeltbutton').addEventListener('click', function (e) {
-		e.preventDefault();
-		executed = this.id;
-		clearMarkers();
-		console.log('Execution:', executed);
-		GdeltView(executed)
-// Call to lambda endpoint
-
-
-	})
 
 
 
-}
-
-
-document.getElementById('entertainment').addEventListener('click', function (e) {
-	e.preventDefault();
-	clearMarkers();
-	selected_keyword = this.id;
-	console.log('Keyword selected:', selected_keyword);
-	search_by_keyword(selected_keyword);
-
-}, false);
+});
