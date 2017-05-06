@@ -101,9 +101,9 @@ def sentiment_mapper(keyword, start_time, end_time, latitude, longitude):
     print ('This is the max emotion', max_emotion)
 
     news_handler = NewsHandler()
-    news_result = news_handler.getNewsWithDistance(latitude, longitude, start_time, end_time, max_emotion)
+    news_result = news_handler.getNewsWithDistance(latitude, longitude, start_time, end_time, max_emotion, keyword)
     print ('Output for news result')
-    print (news_result)
+    #print (news_result)
     print ('----------------------------------------')
     return jsonify(news_result)
 
@@ -157,13 +157,13 @@ if __name__ == "__main__":
     # removed before deploying a production app.
 
     #thread.start_new_thread(startTwitterRequests, ())
-    twitter_thread = threading.Thread(target=startTwitterRequests)
-    twitter_thread.daemon = True
-    twitter_thread.start()
-    thread.start_new_thread(fetchNewsArticles,())
-    #application.debug = True
+    #twitter_thread = threading.Thread(target=startTwitterRequests)
+    #twitter_thread.daemon = True
+    #twitter_thread.start()
+    #thread.start_new_thread(fetchNewsArticles,())
+    application.debug = True
     #application.run()
-    print ('Running application.py')
+    # ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
     

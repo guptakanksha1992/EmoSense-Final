@@ -54,8 +54,8 @@ class NewsHandler:
 
 		return result
 
-	def getNewsWithDistance(self, latitude, longitude, t_start, t_end, max_emotion):
-		distance=str(1000)
+	def getNewsWithDistance(self, latitude, longitude, t_start, t_end, max_emotion, keyword):
+		distance=str(100000)
 		distance_string = distance + 'km'
 		print 'Searching ', distance_string, ' from location Latitude: ', latitude, ' ; Longitude: ', longitude, 'with emotion', max_emotion
 
@@ -64,12 +64,12 @@ class NewsHandler:
 
 		if (type(longitude) != float):
 			longitude = float(longitude)
-
-			body = 	{ "from":0,"size":6,
+				
+			body = 	{ 
 			"query":{
 			"bool" : {
 			"must" : [
-			{"match":{"dominant_emotion":max_emotion}}
+            {"match":{"_all":keyword}}
 			],
 			"must_not":
 			{"range": {
@@ -95,6 +95,8 @@ class NewsHandler:
 
 		size = 10000
 		result = self.es.search(self.index, self.doc_type, body, size)
+
+		print type(result)
 
 		return result
 

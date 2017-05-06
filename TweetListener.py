@@ -34,7 +34,7 @@ accessSecret = config.get('Twitter API Keys', 'AccessSecret')
 aws_api_key = config.get('AWS Keys', 'aws_api_key')
 aws_secret = config.get('AWS Keys', 'aws_secret')
 
-KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment']
+KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment','Apple','IBM','Sony','Maggi']
 REQUEST_LIMIT = 420
 
 #---- Elastic Search Details -------

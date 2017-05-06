@@ -189,18 +189,43 @@ function clear_news(){
 
 // Function to Load news variables and place them on the Carousal
 function load_news(list) {
-	var object_list = list.hits.hits; 
-	console.log(JSON.stringify(object_list));
+	var object_list = list.hits.hits;
+	var processed_object_list = [];
+	var titles_selected = [];
+
 	for (var i = 0; i < object_list.length; i++) {
+		console.log('Object Number', i + 1);
+		console.log(object_list[i]._source.title);
+		console.log('------');
+		}
+
+		
+	// Randomly select 6 non-repeating news articles
+	if(object_list.length <= 6){
+		processed_object_list = object_list;
+	}else {
+		while(processed_object_list.length < 6){
+			i = Math.floor((Math.random() * object_list.length) + 0);
+				console.log('Adding to processed_object_list')
+				processed_object_list.push(object_list[i]);
+				titles_selected.push(object_list[i]._source.title);
+				console.log('Title list untill now');
+				console.log(titles_selected);
+		}
+	}
+
+	console.log('--*****--')
+	
+	for (var i = 0; i < processed_object_list.length; i++) {
 
 		//Changing the title
-		document.getElementById("title-" + String(i + 1)).innerHTML = object_list[i]._source.title;
+		document.getElementById("title-" + String(i + 1)).innerHTML = processed_object_list[i]._source.title;
 
 		//Changing the Link
-		document.getElementById("link-" + String(i + 1)).href=object_list[i]._source.url;
+		document.getElementById("link-" + String(i + 1)).href=processed_object_list[i]._source.url;
 
 		//Changing the Image
-		document.getElementById("img-" + String(i + 1)).src = object_list[i]._source.url2image;
+		document.getElementById("img-" + String(i + 1)).src = processed_object_list[i]._source.url2image;
 		
 	}
 
@@ -578,6 +603,18 @@ $(document).ready(function(){
 	console.log(a);
 
 	// Adding Listeners for the buttons
+
+	$.ajax({
+    	url: '/news' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		load_news(response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
 
 	document.getElementById('sports').addEventListener('click', function (e) {
 		e.preventDefault();
