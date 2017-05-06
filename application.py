@@ -119,6 +119,7 @@ def snsFunction():
     try:
         # Notification received from SNS
         print ('Notification received from SNS')
+        print 'Request received', request
         if (len(request.data)):
             notification = json.loads(request.data)
         else:
@@ -127,7 +128,9 @@ def snsFunction():
             print("Unable to load request")
             pass
 
-            headers = request.headers.get('X-Amz-Sns-Message-Type')
+    headers = request.headers.get('X-Amz-Sns-Message-Type')
+    print 'Headers is', headers
+    print '**************************************'
     # print(notification)
 
     if headers == 'SubscriptionConfirmation' and 'SubscribeURL' in notification:
@@ -136,11 +139,11 @@ def snsFunction():
     elif headers == 'Notification':
         print ("I am here!!")
         TweetPersister.persistTweet(notification)
-        socketio.emit('first', {'notification': 'New Tweet!'})
+        #socketio.emit('first', {'notification': 'New Tweet!'})
     else:
         # print 'Value of headers', headers
         print("Headers not specified")
-        return ('End point was accessed!')
+    return ('End point was accessed!')
 
 
 # run the app.
@@ -149,13 +152,14 @@ if __name__ == "__main__":
     # removed before deploying a production app.
 
     #thread.start_new_thread(startTwitterRequests, ())
+    twitter_thread = threading.Thread(target=startTwitterRequests)
+    twitter_thread.daemon = True
+    twitter_thread.start()
     thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
     #application.run()
     print ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
     #application.debug = True
-    twitter_thread = threading.Thread(target=startTwitterRequests)
-    twitter_thread.daemon = True
-    twitter_thread.start()
+    
     application.run()
