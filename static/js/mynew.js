@@ -13,7 +13,14 @@ function initMap() {
 
 }
 
-function GdeltView(timestamp, latitude, longitude) { //on click of GDELT button
+
+
+function GdeltView(timestamp, latitude, longitude) {
+	var formData = {"timestamp": timestamp,
+						"location": [
+	                  latitude,
+	                  longitude
+	               ] } //on click of GDELT button
 $.ajax({
 
 		// CODE FOR JAVASCRIPT ---NACHIKET
@@ -35,15 +42,10 @@ $.ajax({
 
         url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
         type: "POST",
-        formData: {"timestamp": timestamp,
-        "location": [
-                          latitude,
-                          longitude
-                       ] },      
+              
 				data: JSON.stringify(formData),
 				contentType: "application/json; charset=utf-8",
         success: function(data) {
-				data = JSON_stringify(data, true);
 				data = JSON.parse(data);
 				console.log("data");
 				console.log(data);
