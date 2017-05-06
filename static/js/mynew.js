@@ -14,7 +14,6 @@ function initMap() {
 }
 
 function gdeltquery(start_time, end_time){
-
 	console.log('Now querying gdelt events');
 	time1 = start_time;
 	time2 = end_time;
@@ -29,7 +28,6 @@ function gdeltquery(start_time, end_time){
   ]
 	}
 	$.ajax({
-
 	url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
 	type: 'POST',
 	data: JSON.stringify(formData),
