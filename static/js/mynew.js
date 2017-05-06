@@ -8,7 +8,6 @@ function initMap() {
 	});
 
 	infowindow = new google.maps.InfoWindow({});
-
 	console.log('Initialized value of map', map);
 
 }
@@ -223,10 +222,11 @@ $(document).ready(function(){
 	document.getElementById('gdeltbutton').addEventListener('click', function (e) {
 		e.preventDefault();
 		clearMarkers();
-		var form = document.getElementById("keyword_select_form");
-		selected_keyword = form.elements['search_keyword'].value
+		var form = document.getElementById("GDELT_select_form");
+		selected_date = form.elements['datepicker'].value
+
     // Call to lambda endpoint
-        GdeltView(default_start_time, default_end_time, latitude, longitude);
+        GdeltView(selected_date, default_end_time, latitude, longitude);
 
 	})
 

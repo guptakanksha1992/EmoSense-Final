@@ -37,14 +37,15 @@
 </nav>
 
   <form class="input-group stylish-input-group" id="GDELT_select_form">
-       <div class="navbar-header" align="left">
-<p><b>Date: </b><input type="text" id="datepicker"></p>
-    </div>
+       <div style="float: left;">Start Date:
+        <input type="text" value="" id="datepicker" name="date1" />
+    </div>End Date:
+    <input type="text" value="" id="datepicker2" name="date2" />
  <div align="left"><button type="button"  class="button" style="background-color: #333D3F; border:1px; border-style:outset; border-color: white; width: 45%; height: 100%" id="gdeltbutton">View GDELT</button></div>
       </form>
  <script>
   $( function() {
-    $( "#datepicker" ).datepicker();
+   $("#datepicker, #datepicker2").datepicker({});
   } );
   </script>
 
