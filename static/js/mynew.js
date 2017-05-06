@@ -120,80 +120,6 @@ function drop_marker(latitude, longitude, source_object, color) {
 
 }
 
-function image_emotion_mapper(emotion)
-{
-	switch(emotion){
-		case "happy": return '/static/images/happy.png';
-		break;
-		case "sad": return '/static/images/sad.png';
-		break;
-		case "angry": return '/static/images/angry.png';
-		break;
-		case "disgust": return '/static/images/disgust.png';
-		break;
-		case "fear": return '/static/images/fear.png';
-		break;
-		default: return '/static/images/neutral.png';
-
-	}
-}
-
-// Function to calculate the dominant emotion for a tweet
-function max_emotion(object){
-	//console.log(object);
-
-	var happy_value, sad_value, angry_value, disgust_value, fear_value;
-
-	happy_value = object.joy;
-	sad_value = object.sadness;
-	angry_value = object.anger;
-	disgust_value = object.disgust;
-	fear_value = object.fear;
-
-	console.log('Emotion variables',happy_value, sad_value, angry_value, disgust_value, fear_value);
-	switch(Math.max(happy_value, sad_value, angry_value, disgust_value, fear_value)){
-		case happy_value: return 'happy';
-		break;
-		case sad_value: return 'sad';
-		break;
-		case angry_value: return 'angry';
-		break;
-		case disgust_value: return 'disgust';
-		break;
-		case fear_value: return 'fear';
-		break;
-		default: return 'no max value';
-		break;
-	}
-
-}
-
-// Function to Load tweets and place them on the map
-function load_tweet(list) {
-	var object_list = list.hits.hits;
-	console.log(JSON.stringify(object_list));
-	for (var i = 0; i < object_list.length; i++) {
-		curr_latitude = object_list[i]._source.location[1];
-		curr_longitude = object_list[i]._source.location[0];
-
-		//Check if the following variable is correct or not (most probably will require dominant emotion)
-
-		dominant_emotion = max_emotion(object_list[i]._source);
-		console.log('Dominant emotion is:', dominant_emotion);
-		object_list[i]._source.img_source = image_emotion_mapper(dominant_emotion);
-		console.log(object_list[i]._source.img_source);
-
-		if(object_list[i]._source.sentiment == 'positive'){
-			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 2);
-		} else if(object_list[i]._source.sentiment == 'negative'){
-			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 0);
-		} else {
-			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 1);
-		}
-	}
-
-}
-
 function placeMarker(location) {
 	clearGeoTags();
 	var markerColor = '0000FF';
@@ -220,40 +146,6 @@ function get_type(thing){
     return Object.prototype.toString.call(thing);
 }
 
-// Function to clear the News Articles carousal
-function clear_news(){
-	for (var i = 0; i < 6; i++) {
-
-		//Changing the title
-		document.getElementById("title-" + String(i + 1)).innerHTML = "";
-
-		//Changing the Link
-		document.getElementById("link-" + String(i + 1)).href="";
-
-		//Changing the Image
-		document.getElementById("img-" + String(i + 1)).src = "";
-
-	}
-}
-
-// Function to Load news variables and place them on the Carousal
-function load_news(list) {
-	var object_list = list.hits.hits;
-	console.log(JSON.stringify(object_list));
-	for (var i = 0; i < object_list.length; i++) {
-
-		//Changing the title
-		document.getElementById("title-" + String(i + 1)).innerHTML = object_list[i]._source.title;
-
-		//Changing the Link
-		document.getElementById("link-" + String(i + 1)).href=object_list[i]._source.url;
-
-		//Changing the Image
-		document.getElementById("img-" + String(i + 1)).src = object_list[i]._source.url2image;
-
-	}
-
-}
 
 function search_by_geo_distance(latitude, longitude) {
 	clearMarkers();
@@ -277,55 +169,6 @@ function search_by_geo_distance(latitude, longitude) {
     		$('#testing').text(JSON.stringify(error));
     	}
     });
-
-    // This Ajax call is for populating the Graph
-    $.ajax({
-    	url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-    	type: 'GET',
-    	success: function(response) {
-    		console.log('In the AJAX Call for Graphs')
-    		console.log('Querying start time:', default_start_time, 'End time:', default_end_time, 'latitude:', latitude, 'longitude:', longitude);
-    		console.log(JSON.stringify(response));
-    		graph_query_response = response;
-    		graphQueryProcessor(graph_query_response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
-
-
-    // This Ajax call is for populating the News Carousal
-    $.ajax({
-    	url: '/news' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-    	type: 'GET',
-    	success: function(response) {
-    		load_news(response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
-
-}
-
-function search_by_keyword(selected_keyword) {
-    //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
-    console.log(selected_keyword);
-    $.ajax({
-    	url: '/search/' + selected_keyword,
-    	type: 'GET',
-    	success: function(response) {
-    		load_tweet(response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
-}
 
 function clearMarkers(){
 	for (var i = 0; i < marker_list.length; i++) {
@@ -354,37 +197,15 @@ var marker_list = [];
 var geo_list = [];
 var infowindow = '';
 var min_zoom_level = 2;
-var selected_keyword, data_series, graph_query_response;
-
 
 $(document).ready(function(){
 
-	console.log('In Javascript file');
+	console.log('In Javascript GDELT file');
 
-	default_start_time = 2016;
-	default_end_time = 2018;
+	default_start_time = 20150111;
+	default_end_time = 20180101;
 	latitude = 40.06889420539272;
 	longitude = -120.32554198435977;
-	GdeltView();
-
-
-	selected_keyword = 'sports';
-	console.log('selected_keyword value:', selected_keyword);
-
-	$.ajax({
-		url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-		type: 'GET',
-		success: function(response) {
-			console.log('In the AJAX Call')
-			//console.log(JSON.stringify(response));
-    		graph_query_response = response;
-    		graphQueryProcessor(graph_query_response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
 
 	// Initialize Google Map
 	initMap();
@@ -396,14 +217,16 @@ $(document).ready(function(){
 	});
 
 	console.log(a);
+	GdeltView(default_start_time, default_end_time, latitude, longitude);
 
 	// Adding Listeners for the buttons
-    //send the location in the
 	document.getElementById('gdeltbutton').addEventListener('click', function (e) {
 		e.preventDefault();
 		clearMarkers();
-// Call to lambda endpoint
-        GdeltView()
+		var form = document.getElementById("keyword_select_form");
+		selected_keyword = form.elements['search_keyword'].value
+    // Call to lambda endpoint
+        GdeltView(default_start_time, default_end_time, latitude, longitude);
 
 	})
 
