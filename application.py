@@ -40,7 +40,7 @@ application = Flask(__name__)
 @application.route('/newroute')
 def GDELT_root():
     # Loading initial values
-    return render_template('GDELT_index.html')
+    return render_template('MapTest.html')
 
 @application.route('/')
 def api_root():
@@ -124,10 +124,10 @@ def snsFunction():
         else:
             notification = request.form['hello']
     except:
-            print("Unable to load request")
-            pass
+        print("Unable to load request")
+        pass
 
-            headers = request.headers.get('X-Amz-Sns-Message-Type')
+    headers = request.headers.get('X-Amz-Sns-Message-Type')
     # print(notification)
 
     if headers == 'SubscriptionConfirmation' and 'SubscribeURL' in notification:
