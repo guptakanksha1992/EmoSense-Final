@@ -223,10 +223,11 @@ $(document).ready(function(){
 		e.preventDefault();
 		clearMarkers();
 		var form = document.getElementById("GDELT_select_form");
-		selected_date = form.elements['datepicker'].value
+		selected_startdate = form.elements['datepicker'].value
+		selected_enddate = form.elements['datepicker2'].value
 
     // Call to lambda endpoint
-        GdeltView(selected_date, default_end_time, latitude, longitude);
+        GdeltView(selected_startdate, selected_enddate, geo_latitude, geo_longitude);
 
 	})
 
