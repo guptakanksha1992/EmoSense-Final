@@ -1,41 +1,49 @@
 <!DOCTYPE html>
 <html>
+<div style="background-color:black;">
 <head>
   <style>
    #map {
-    height: 450px;
-    width: 45%;
-  }
+    height: 400px;
+    width: 100%;
+      }
 </style>
+<link rel="stylesheet" href="../static/css/style.css">
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> <!-- adding jQuery.js -->
   <script src="https://www.w3schools.com/lib/w3data.js"></script>
-
+  <script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUKfWmnbZMgz4nxSMZESSS60K1wFZm-a0&libraries=visualization">
+  </script>
   <script type="text/javascript" src="../static/js/mynew.js"></script>
 
         <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen"
      href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">
 </head>
-<body>
 
-<nav class="navbar navbar-default">
-		    <div class="container-fluid" style="background-color: #333D3F">
+
+
+
+<nav class="navbar navbar-default" style="background-color:black;">
+		    <div class="container-fluid" style="background-color: black; height: 20px">
 		        <!-- Brand and toggle get grouped for better mobile display -->
-		        <div class="navbar-header">
-		            <a class="navbar-brand" href="#">GDELT </a>
+		        <div class="navbar-header" align="center" style="font-size:20px" >
+		            <a class="navbar-brand" style= "color:white" href="#">GDELT Event View </a>
 					</div><!-- /.navbar-collapse -->
-
-</div><!-- /.container-fluid -->
-     <div id="map"></div>
+</div>
 </nav>
+<!-- /.container-fluid -->
 
 <div>
-  <form class="input-group stylish-input-group" id="gdelt_form">
+     <div id="map" style = "border:1px; border-style: solid ; border-color: #333D3F;background-color:black;"   solid gray; ></div>
+</div>
+
+  <form class="input-group stylish-input-group" id="gdelt_form" style="background-color:black; width:100%" >
 
     <div class="navbar-header" align="left">
   <div id="datetimepicker" class="input-append date" style="height: 100%" >
-        <input type="text" name = "start_time"> </input>
+        <input type="text" name = "start_time" placeholder="Start Date"> </input>
         <span class="add-on">
           <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
         </span>
@@ -43,22 +51,24 @@
       </div>
       <div class="navbar-header" align="left">
     <div id="datetimepicker2" class="input-append date" style="height: 100%" >
-          <input type="text" name = "end_time"> </input>
+          <input type="text" name = "end_time" placeholder="End Date"> </input>
           <span class="add-on">
             <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
           </span>
         </div>
         </div>
-    <span class="input-group-addon" >
+    <div>
+    <span class="input-group-addon" style="height: 30%">
       <div align="left">
-      <button type="submit" style="background-color: #333D3F; border:1px; border-style:outset; border-color: white; width: 45%; height: 100%" id="gdeltbutton">
+        <button type="submit"  class="button" style="background-color: #333D3F; border:1px; border-style:outset; border-color: white; width: 50%; height: 100%" id="gdeltbutton">View GDELT</button>
         <span class="glyphicon glyphicon-search"></span>
       </button>
-      </div>
+      </div
     </span>
+  </div>
   </form>
-</div>
 
+</div>
 
 
 <script type="text/javascript"
@@ -72,19 +82,21 @@
     </script>
     <script type="text/javascript">
       $('#datetimepicker').datetimepicker({
-        format: 'dd/MM/yyyy',
+        format: 'yyyy/MM/dd',
         language: 'pt-BR'
       });
     </script>
     <script type="text/javascript">
       $('#datetimepicker2').datetimepicker({
-        format: 'dd/MM/yyyy',
+        format: 'yyyy/MM/dd',
         language: 'pt-BR'
       });
     </script>
 
 <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfLyBKivYy0v-7sdMtqmpO2cK92X8n-a4">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUKfWmnbZMgz4nxSMZESSS60K1wFZm-a0&libraries=visualization">
   </script>
-</body>
+
+</div>
+
 </html>

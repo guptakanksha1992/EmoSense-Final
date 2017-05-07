@@ -13,39 +13,99 @@ function initMap() {
 
 }
 
+function gdeltMap(data) {
+	console.log("Plotting new gdelt event markers")
+  var response = data
+
+  var Lat_sum = 0.0, Long_sum = 0.0;
+  var length = response.length;
+
+  for (i = 0; i < response.length; i++) {
+      Lat_sum = Lat_sum + response[i]['ActionGeo_Lat'];
+      Long_sum = Long_sum + response[i]['ActionGeo_Long'];
+    }
+
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 4,
+    center: new google.maps.LatLng(Lat_sum/length, Long_sum/length),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+
+  var infowindow = new google.maps.InfoWindow();
+	var marker, i;
+	  var heatMapData = new Array(response.length);
+
+	  for (i = 0; i < response.length; i++) {
+	    heatMapData[i] = {location: new google.maps.LatLng(response[i]['ActionGeo_Lat'], response[i]['ActionGeo_Long']), weight: (response[i]['GoldsteinScale'])*0.1 }
+	    marker = new google.maps.Marker({
+	      position: new google.maps.LatLng(response[i]['ActionGeo_Lat'], response[i]['ActionGeo_Long']),
+	      map: map
+	    });
+
+			marker.setOpacity(0.8);
+
+	    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+	      return function() {
+	        content = response[i]['SOURCEURL'];
+					scale = response[i]['GoldsteinScale'];
+	        content  = "<a href='" + content + "'>" + content + "</a>";
+	        infowindow.setContent(content + ' GoldsteinScale is: ' + scale);
+	        infowindow.open(map, marker);
+	      }
+	    })(marker, i));
+	  }
+
+	  var heatmap = new google.maps.visualization.HeatmapLayer({
+	  data: heatMapData,
+		opacity: 0.8,
+		radius: 10
+	  });
+	  heatmap.setMap(map);
+}
+
+
 function gdeltquery(start_time, end_time){
 	console.log('Now querying gdelt events');
-	time1 = start_time;
-	time2 = end_time;
-	latitude = parseFloat(geo_list[0])
-	longitude = parseFloat(geo_list[1])
-	console.log('The lat is ', latitude);
-	formData = {
-  timestamp: "2015-01-23T06:59:58Z",
+	var time1 = start_time;
+	var time2 = end_time;
+	var newlatitude = parseFloat(geo_list[0])
+	var newlongitude = parseFloat(geo_list[1])
+	console.log('The lat is ', newlatitude);
+	var formData = {
+  timestamp: [start_time, end_time],
   location: [
-    latitude,
-    longitude
+    (newlatitude),
+    (newlongitude)
   ]
 	}
+	console.log(formData)
 	$.ajax({
 	url: 'https://4jjj0vw665.execute-api.us-east-1.amazonaws.com/prod/delt',
 	type: 'POST',
+	timeout: 600000,
+	tryCount : 0,
+	retryLimit : 3,
 	data: JSON.stringify(formData),
-	contentType: "application/json;",
+	contentType: "application/json; ",
 	success: function(data) {
 		console.log("data");
 		console.log(data);
 		console.log("success");
+		gdeltMap(data)
 	},
-	error: function(error){
-		alert("Could not load GDELT view!!");
+
+	error: function(error,textStatus, errorThrown){
+		if (textStatus == 'timeout') {
+				this.tryCount++;
+				if (this.tryCount <= this.retryLimit) {
+						$.ajax(this);
+						return;
+				}
+				return;
+		}
 	}
 });
 }
-
-
-
-
 
 // Function to add HTML code to the Marker
 function toggleMarker(source_object) {
@@ -105,33 +165,6 @@ function drop_marker(latitude, longitude, source_object, color) {
 
 }
 
-
-// Function to Load tweets and place them on the map
-function load_tweet(list) {
-	var object_list = list.hits.hits;
-	console.log(JSON.stringify(object_list));
-	for (var i = 0; i < object_list.length; i++) {
-		curr_latitude = object_list[i]._source.location[1];
-		curr_longitude = object_list[i]._source.location[0];
-
-		//Check if the following variable is correct or not (most probably will require dominant emotion)
-
-		dominant_emotion = max_emotion(object_list[i]._source);
-		console.log('Dominant emotion is:', dominant_emotion);
-		object_list[i]._source.img_source = image_emotion_mapper(dominant_emotion);
-		console.log(object_list[i]._source.img_source);
-
-		if(object_list[i]._source.sentiment == 'positive'){
-			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 2);
-		} else if(object_list[i]._source.sentiment == 'negative'){
-			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 0);
-		} else {
-			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 1);
-		}
-	}
-
-}
-
 function placeMarker(location) {
 	clearGeoTags();
 	var markerColor = '0000FF';
@@ -143,99 +176,13 @@ function placeMarker(location) {
 	var marker = new google.maps.Marker({
 		position: location,
 		map: map,
-		title: "Events in this area",
+		title: "Tweets around this area",
 		icon: markerImage
 	});
 	geo_latitude = marker.getPosition().lat();
-	console.log('Lat is', geo_latitude)
 	geo_longitude = marker.getPosition().lng();
 	geo_list.push(geo_latitude);
 	geo_list.push(geo_longitude);
-	console.log(geo_list)
-	areaselect(geo_latitude, geo_longitude);
-}
-
-function areaselect(geo_latitude, geo_longitude){
-
-}
-
-
-function get_type(thing){
-    if(thing===null)return "[object Null]"; // special case
-    return Object.prototype.toString.call(thing);
-}
-
-
-function search_by_geo_distance(latitude, longitude) {
-	clearMarkers();
-	clear_news();
-	console.log('In search_by_geo_distance function');
-	console.log('selected_keyword global variable\'s value:', selected_keyword);
-	var selected_key = selected_keyword;
-	var selected_distance = 1000;
-    //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
-    console.log('Selected Distance:',selected_distance);
-    // This Ajax call is for populating the tweets
-    $.ajax({
-    	url: '/search/' + selected_keyword + '/' + selected_distance + '/' + latitude + '/' + longitude,
-    	type: 'GET',
-    	success: function(response) {
-    		console.log(JSON.stringify(response));
-    		load_tweet(response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
-
-    // This Ajax call is for populating the Graph
-    $.ajax({
-    	url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-    	type: 'GET',
-    	success: function(response) {
-    		console.log('In the AJAX Call for Graphs')
-    		console.log('Querying start time:', default_start_time, 'End time:', default_end_time, 'latitude:', latitude, 'longitude:', longitude);
-    		console.log(JSON.stringify(response));
-    		graph_query_response = response;
-    		graphQueryProcessor(graph_query_response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
-
-
-    // This Ajax call is for populating the News Carousal
-    $.ajax({
-    	url: '/news' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-    	type: 'GET',
-    	success: function(response) {
-    		load_news(response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
-
-}
-
-function search_by_keyword(selected_keyword) {
-    //Here is where the ajax call is made i.e. where we then call the endpoint associated with the search function
-    console.log(selected_keyword);
-    $.ajax({
-    	url: '/search/' + selected_keyword,
-    	type: 'GET',
-    	success: function(response) {
-    		load_tweet(response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
 }
 
 function clearMarkers(){
@@ -276,6 +223,8 @@ $(document).ready(function(){
 	default_end_time = 2018;
 	latitude = 40.06889420539272;
 	longitude = -120.32554198435977;
+
+
 	selected_keyword = 'sports';
 	console.log('selected_keyword value:', selected_keyword);
 
@@ -305,7 +254,9 @@ $(document).ready(function(){
 
 	console.log(a);
 
-	document.getElementById('gdelt_form').addEventListener('submit', function (e) {
+	// Adding Listeners for the buttons
+    //send the location in the
+	document.getElementById('gdeltbutton').addEventListener('click', function (e) {
 		e.preventDefault();
 		clearMarkers();
 		var form = document.getElementById("gdelt_form");
@@ -313,11 +264,7 @@ $(document).ready(function(){
 		end_time = form.elements['end_time'].value
 		console.log('Start time is', start_time);
 		console.log('End time is', end_time);
-		gdeltquery(start_time,end_time)
+		gdeltquery(start_time, end_time);
 	}, false);
 
-	// Adding Listeners for the buttons
-
-
-
-});
+	});

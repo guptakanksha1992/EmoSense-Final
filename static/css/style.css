@@ -1,11 +1,11 @@
 html,
 body {
-  background-color: Silver;
+  background-image: url("../static/images/maptest.png");
 },
 
 #map {
           height: 500px;
-        width: 200%;
+        width: 100%;
  }
 
 .button {
@@ -84,11 +84,11 @@ body {
 /* CSS For search box*/
 
 .stylish-input-group .input-group-addon{
-    background: white !important; 
+    background: white !important;
 }
 .stylish-input-group .form-control{
-    border-right:0; 
-    box-shadow:0 0 0; 
+    border-right:0;
+    box-shadow:0 0 0;
     border-color:#ccc;
 }
 .stylish-input-group button{
