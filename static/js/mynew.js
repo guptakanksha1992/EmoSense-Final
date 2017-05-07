@@ -369,21 +369,7 @@ $(document).ready(function(){
 	selected_keyword = 'sports';
 	console.log('selected_keyword value:', selected_keyword);
 
-	$.ajax({
-		url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
-		type: 'GET',
-		success: function(response) {
-			console.log('In the AJAX Call')
-			//console.log(JSON.stringify(response));
-    		graph_query_response = response;
-    		graphQueryProcessor(graph_query_response);
-    	},
-    	error: function(error) {
-    		console.log(JSON.stringify(error));
-    		$('#testing').text(JSON.stringify(error));
-    	}
-    });
-
+	
 	// Initialize Google Map
 	initMap();
 

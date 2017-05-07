@@ -101,7 +101,7 @@ function max_emotion(object){
 	disgust_value = object.disgust;
 	fear_value = object.fear;
 
-	console.log('Emotion variables',happy_value, sad_value, angry_value, disgust_value, fear_value);
+	//console.log('Emotion variables',happy_value, sad_value, angry_value, disgust_value, fear_value);
 	switch(Math.max(happy_value, sad_value, angry_value, disgust_value, fear_value)){
 		case happy_value: return 'happy';
 		break;
@@ -130,9 +130,9 @@ function load_tweet(list) {
 		//Check if the following variable is correct or not (most probably will require dominant emotion)
 
 		dominant_emotion = max_emotion(object_list[i]._source);
-		console.log('Dominant emotion is:', dominant_emotion);
+		//console.log('Dominant emotion is:', dominant_emotion);
 		object_list[i]._source.img_source = image_emotion_mapper(dominant_emotion);
-		console.log(object_list[i]._source.img_source);
+		//console.log(object_list[i]._source.img_source);
 
 		if(object_list[i]._source.sentiment == 'positive'){
 			drop_marker(curr_latitude, curr_longitude, object_list[i]._source, 2);
@@ -506,7 +506,7 @@ function graphQueryProcessor(graph_query_response){
 		month_word = x.match(monthReg)[0];
 		month = month_mapper(month_word);
 		value = (graph_query_response['collated_emotions'][0][x]);
-		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		//console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
 		joy_series.push([Date.UTC(year,month - 1,day),value])
 
 	}
@@ -519,7 +519,7 @@ function graphQueryProcessor(graph_query_response){
 		month_word = x.match(monthReg)[0];
 		month = month_mapper(month_word);
 		value = (graph_query_response['collated_emotions'][1][x]);
-		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		//console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
 		anger_series.push([Date.UTC(year,month - 1,day),value])
 
 	}
@@ -532,7 +532,7 @@ function graphQueryProcessor(graph_query_response){
 		month_word = x.match(monthReg)[0];
 		month = month_mapper(month_word);
 		value = (graph_query_response['collated_emotions'][2][x]);
-		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		//console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
 		sadness_series.push([Date.UTC(year,month - 1,day),value])
 
 	}
@@ -545,7 +545,7 @@ function graphQueryProcessor(graph_query_response){
 		month_word = x.match(monthReg)[0];
 		month = month_mapper(month_word);
 		value = (graph_query_response['collated_emotions'][3][x]);
-		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		//console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
 		disgust_series.push([Date.UTC(year,month - 1,day),value])
 
 	}
@@ -559,7 +559,7 @@ function graphQueryProcessor(graph_query_response){
 		month_word = x.match(monthReg)[0];
 		month = month_mapper(month_word);
 		value = (graph_query_response['collated_emotions'][4][x]);
-		console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
+		//console.log('Year:',year, 'Month', month, 'Day:', day, 'Value:', value);
 		fear_series.push([Date.UTC(year,month - 1,day),value])
 
 	}
@@ -570,14 +570,29 @@ function graphQueryProcessor(graph_query_response){
 
 $(document).ready(function(){
 
+
 	console.log('In Javascript file');
+
+
 
 	default_start_time = 2016;
 	default_end_time = 2018;
 	latitude = 40.06889420539272;
 	longitude = -120.32554198435977;
-	selected_keyword = 'sports';
+	selected_keyword = 'health';
 	console.log('selected_keyword value:', selected_keyword);
+
+	$.ajax({
+    	url: '/news' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		load_news(response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
 
 	$.ajax({
 		url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
@@ -607,6 +622,7 @@ $(document).ready(function(){
 
 	// Adding Listeners for the buttons
 
+
 	$.ajax({
     	url: '/news' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
     	type: 'GET',
@@ -625,6 +641,23 @@ $(document).ready(function(){
 		selected_keyword = this.id;
 		search_by_keyword(selected_keyword);
 
+		$.ajax({
+    	url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		console.log('In the AJAX Call for Graphs')
+    		console.log('Querying start time:', default_start_time, 'End time:', default_end_time, 'latitude:', latitude, 'longitude:', longitude);
+    		console.log(JSON.stringify(response));
+    		graph_query_response = response;
+    		graphQueryProcessor(graph_query_response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
+
+
 	}, false);
 
 	document.getElementById('politics').addEventListener('click', function (e) {
@@ -632,6 +665,23 @@ $(document).ready(function(){
 		clearMarkers();
 		selected_keyword = this.id;
 		search_by_keyword(selected_keyword);
+
+		$.ajax({
+    	url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		console.log('In the AJAX Call for Graphs')
+    		console.log('Querying start time:', default_start_time, 'End time:', default_end_time, 'latitude:', latitude, 'longitude:', longitude);
+    		console.log(JSON.stringify(response));
+    		graph_query_response = response;
+    		graphQueryProcessor(graph_query_response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
+
 
 	}, false);
 
@@ -641,6 +691,23 @@ $(document).ready(function(){
 		selected_keyword = this.id;
 		search_by_keyword(selected_keyword);
 
+		$.ajax({
+    	url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		console.log('In the AJAX Call for Graphs')
+    		console.log('Querying start time:', default_start_time, 'End time:', default_end_time, 'latitude:', latitude, 'longitude:', longitude);
+    		console.log(JSON.stringify(response));
+    		graph_query_response = response;
+    		graphQueryProcessor(graph_query_response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
+
+
 	}, false);
 
 	document.getElementById('health').addEventListener('click', function (e) {
@@ -648,6 +715,23 @@ $(document).ready(function(){
 		clearMarkers();
 		selected_keyword = this.id;
 		search_by_keyword(selected_keyword);
+
+		$.ajax({
+    	url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		console.log('In the AJAX Call for Graphs')
+    		console.log('Querying start time:', default_start_time, 'End time:', default_end_time, 'latitude:', latitude, 'longitude:', longitude);
+    		console.log(JSON.stringify(response));
+    		graph_query_response = response;
+    		graphQueryProcessor(graph_query_response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
+
 
 	}, false);
 
@@ -657,6 +741,24 @@ $(document).ready(function(){
 		selected_keyword = this.id;
 		console.log('Keyword selected:', selected_keyword);
 		search_by_keyword(selected_keyword);
+
+		// This Ajax call is for populating the Graph
+		console.log('Location', latitude, longitude);
+    $.ajax({
+    	url: '/graph' +'/' + selected_keyword + '/' + default_start_time + '/' + default_end_time + '/' + latitude + '/' + longitude,
+    	type: 'GET',
+    	success: function(response) {
+    		console.log('In the AJAX Call for Graphs')
+    		console.log('Querying start time:', default_start_time, 'End time:', default_end_time, 'latitude:', latitude, 'longitude:', longitude);
+    		console.log(JSON.stringify(response));
+    		graph_query_response = response;
+    		graphQueryProcessor(graph_query_response);
+    	},
+    	error: function(error) {
+    		console.log(JSON.stringify(error));
+    		$('#testing').text(JSON.stringify(error));
+    	}
+    });
 
 	}, false);
 

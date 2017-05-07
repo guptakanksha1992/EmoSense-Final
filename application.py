@@ -161,7 +161,7 @@ if __name__ == "__main__":
     #twitter_thread.daemon = True
     #twitter_thread.start()
     #thread.start_new_thread(fetchNewsArticles,())
-    application.debug = True
+    #application.debug = True
     #application.run()
     # ('Running application.py')
     # thread.start_new_thread(fetchNewsArticles,())
