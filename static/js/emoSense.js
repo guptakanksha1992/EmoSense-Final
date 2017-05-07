@@ -122,7 +122,7 @@ function max_emotion(object){
 // Function to Load tweets and place them on the map
 function load_tweet(list) {
 	var object_list = list.hits.hits; 
-	console.log(JSON.stringify(object_list));
+	// console.log(JSON.stringify(object_list));
 	for (var i = 0; i < object_list.length; i++) {
 		curr_latitude = object_list[i]._source.location[1];
 		curr_longitude = object_list[i]._source.location[0];
@@ -298,6 +298,7 @@ function search_by_keyword(selected_keyword) {
     	type: 'GET',
     	success: function(response) {
     		load_tweet(response);
+			// console.log(JSON.stringify(response));
     	},
     	error: function(error) {
     		console.log(JSON.stringify(error));
@@ -584,8 +585,8 @@ $(document).ready(function(){
 		type: 'GET',
 		success: function(response) {
 			console.log('In the AJAX Call')
-			//console.log(JSON.stringify(response));
-    		graph_query_response = response;
+			// console.log(JSON.stringify(response));
+			graph_query_response = response;
     		graphQueryProcessor(graph_query_response);
     	},
     	error: function(error) {
@@ -594,9 +595,13 @@ $(document).ready(function(){
     	}
     });
 
+
+
 	// Initialize Google Map
 	initMap();
 
+	clearMarkers();
+	search_by_keyword(selected_keyword)
 	a = google.maps.event.addListener(map, 'click', function(event) {
 		console.log('Caught a click to the map!')
 		// Once the Click has been caught, placeMarker function should be called
@@ -669,5 +674,42 @@ $(document).ready(function(){
 		search_by_keyword(selected_keyword);
 
 	}, false);
+
+	document.getElementById('LiveButton').addEventListener('click', function (e) {
+
+		console.log("Going Live");
+		(function worker() {
+			// selected_keyword = 'sports'
+			$.ajax({
+				url: '/search/' + selected_keyword,
+				type: 'GET',
+				success: function(response) {
+					clearMarkers();
+					load_tweet(response);
+					console.log("In Live");
+					// console.log(JSON.stringify(response));
+				},
+				complete: function(error) {
+					setTimeout(worker, 5000);
+				}
+    		});
+
+		})();
+		// e.preventDefault();
+		// clearMarkers();
+		// console.log('Keyword selected:', selected_keyword);
+		// search_by_keyword(selected_keyword);
+        //
+		// $.ajax({
+		//
+		// 	function :function timedRefresh(timeoutPeriod) {
+		// 	setTimeout("location.reload(true);",timeoutPeriod);
+		// }
+        //
+		// window.onload = timedRefresh(5000);
+
+
+	}, false);
 	
 });
+

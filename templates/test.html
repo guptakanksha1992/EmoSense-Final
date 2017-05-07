@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <meta http-equiv="refresh" content="5"/>
+{#    <meta http-equiv="refresh" content="5"/>#}
   <link rel="stylesheet" href="../static/css/mapstyle.css">
   <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
   <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.min.css">
@@ -18,16 +18,6 @@
 </head>
 
 <body>
-<script>
-<!--
-function timedRefresh(timeoutPeriod) {
-	setTimeout("location.reload(true);",timeoutPeriod);
-}
-
-window.onload = timedRefresh(5000);
-
-//   -->
-</script>
 
   <!-- Top Bar code -->
 
@@ -38,7 +28,7 @@ window.onload = timedRefresh(5000);
         <a class="navbar-brand" href="#">EmoSense</a>
       </div><!-- /.navbar-collapse -->
       <ul class="nav navbar-nav navbar-right">
-        <button type="submit" class="button2">Go Live Now!</button>
+        <button type="submit" id="LiveButton" class="button2">Go Live Now!</button>
       </ul>
     </div>
   </nav>
