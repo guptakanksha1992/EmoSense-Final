@@ -19,9 +19,6 @@ from watson_developer_cloud import NaturalLanguageUnderstandingV1
 import watson_developer_cloud.natural_language_understanding.features.v1 as features
 #----------------------------------
 
-KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment']
-REQUEST_LIMIT = 420
-
 #---- Elastic Search Details -------
 
 index = "news2"

@@ -34,7 +34,7 @@ accessSecret = config.get('Twitter API Keys', 'AccessSecret')
 aws_api_key = config.get('AWS Keys', 'aws_api_key')
 aws_secret = config.get('AWS Keys', 'aws_secret')
 
-KEYWORDS = ['Sports', 'Politics', 'Technology', 'Health', 'Entertainment','Apple','IBM','Sony','Maggi']
+KEYWORDS = config.get('Keywords', 'twitter_keywords').split(',')
 
 REQUEST_LIMIT = 420
 
@@ -182,7 +182,7 @@ def publishToQueue(tweet):
         conn = boto.sqs.connect_to_region("us-east-1", aws_access_key_id=aws_api_key,
                                           aws_secret_access_key=aws_secret)
         #print "Connected to SQS!!"
-        # print "Tweet is :", tweet
+        print "Tweet is :", tweet
         # print "All queues:", conn.get_all_queues()
         # q = conn.create_queue('Trial2')
         q = conn.get_queue('EmoSense_Queue')  # Connecting to the SQS Queue named tweet_queue
@@ -211,12 +211,24 @@ def elastic_worker_sentiment_analysis():
         rs = q.get_messages()
 
         # Extracting the message from resultset
+        if(len(rs) == 0):
+            print 'No objects in Queue'
+            return;
+
         m = rs[0]
 
         # Extracting tweet from message
         tweet = m.get_body()
 
         sentiment, anger, joy, sadness, fear, disgust = tweet_sentiment_analysis(tweet)
+
+        try:
+            print 'Fetch and parsed message, now deleting from SQS'
+            q.delete_message(m)
+        except Exception as e:
+            print 'Exception ', str(e)
+
+
         print ("Before SNS: ", tweet)
 
 
@@ -250,6 +262,7 @@ def startStream():
     while True:
         try:
             twitterStream = Stream(auth, TweetListener())
+            print 'Starting twitter stream with Keywords:', KEYWORDS
             twitterStream.filter(languages=['en'], track=KEYWORDS)
         except Exception as e:
             print("Restarting Stream", str(e))

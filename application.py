@@ -7,7 +7,7 @@ import threading
 from flask import Flask, render_template, jsonify
 from flask_socketio import SocketIO, send, emit
 
-from TweetListener import *
+from TweetListener import startStream
 from TweetHandler import TwitterHandler
 import TweetPersister
 #----------------------------------------
@@ -21,6 +21,27 @@ from news.NewsListener import *
 from GraphHandler import *
 #----------------------------------------
 
+# Config parsers
+import ConfigParser
+
+
+# Function that checks if a keyword exists in the Config file, and appends a record if it doesn't
+def configChanger(keyword):
+    config = ConfigParser.ConfigParser()
+    config.readfp(open(r'./configurations.txt'))
+    KEYWORDS = config.get('Keywords', 'twitter_keywords').split(',')
+    print 'Keywords parsed:', KEYWORDS
+    print type(KEYWORDS)
+
+    # Checking if keyword exists in KEYWORDS
+    if keyword in KEYWORDS:
+        print 'Keyword', keyword, 'exists in Configuration file'
+    else:
+        print 'Keyword', keyword, 'not found in Configuration file, adding.'
+        appended_string = config.get('Keywords', 'twitter_keywords')
+        appended_string = appended_string + ',' + keyword
+        config.set('Keywords','twitter_keywords',appended_string)
+        with open('./configurations.txt', 'w') as configfile: config.write(configfile)
 
 # function that pulls tweets from twitter
 def startTwitterRequests():
@@ -51,6 +72,7 @@ def api_root():
 #Searches Tweets based on a Keyword
 @application.route('/search/<keyword>')
 def searchKeyword(keyword):
+    configChanger(keyword)
     searchTweets = TwitterHandler()
     result = searchTweets.getTweets(keyword)
     return jsonify(result)
@@ -150,21 +172,14 @@ def snsFunction():
         print("Headers not specified")
     return ('End point was accessed!')
 
-
 # run the app.
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
 
-    #thread.start_new_thread(startTwitterRequests, ())
     twitter_thread = threading.Thread(target=startTwitterRequests)
     twitter_thread.daemon = True
     twitter_thread.start()
     thread.start_new_thread(fetchNewsArticles,())
     application.debug = True
-    #application.run()
-    # ('Running application.py')
-    # thread.start_new_thread(fetchNewsArticles,())
-    #application.debug = True
-    
     application.run()
