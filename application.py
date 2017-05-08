@@ -58,7 +58,7 @@ def fetchNewsArticles():
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 
-@application.route('/newroute')
+@application.route('/gdelt')
 def GDELT_root():
     # Loading initial values
     return render_template('MapTest.html')
