@@ -2,7 +2,7 @@ appdirs==1.4.3
 elasticsearch==5.2.0
 Flask==0.10.1
 itsdangerous==0.24
-Jinja2==2.9.5
+Jinja2==2.11.3
 MarkupSafe==1.0
 oauthlib==2.0.1
 packaging==16.8
